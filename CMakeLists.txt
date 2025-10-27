@@ -14,19 +14,7 @@ cmake_minimum_required(VERSION 4.0)
 project (openpnp-capture)
 set(OPENPNP_CAPTURE_LIB_VERSION "0.0.28" CACHE STRING "openpnp-capture library version")
 set(OPENPNP_CAPTURE_LIB_SOVERSION "0" CACHE STRING "openpnp-capture library soversion")
-
-# Library type options
-option(BUILD_SHARED_LIBS "Build shared library" ON)
-option(BUILD_STATIC_LIBS "Build static library" OFF)
-
-# Validate library type options
-if(BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS)
-    message(WARNING "Both BUILD_STATIC_LIBS and BUILD_SHARED_LIBS are enabled. Building static library only.")
-    set(BUILD_SHARED_LIBS OFF)
-elseif(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
-    message(STATUS "Neither BUILD_STATIC_LIBS nor BUILD_SHARED_LIBS specified. Defaulting to shared library.")
-    set(BUILD_SHARED_LIBS ON)
-endif()
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 # make sure the libjpegturbo is compiled with the
 # position independent flag -fPIC

@@ -40,13 +40,13 @@
 Context* createPlatformContext();
 
 
-DLLPUBLIC CapContext Cap_createContext()
+OPENPNP_CAPTURE_PUBLIC CapContext Cap_createContext()
 {
     Context *ctx = createPlatformContext();
     return ctx;
 }
 
-DLLPUBLIC CapResult Cap_releaseContext(CapContext ctx)
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_releaseContext(CapContext ctx)
 {
     if (ctx != 0)
     {
@@ -58,7 +58,7 @@ DLLPUBLIC CapResult Cap_releaseContext(CapContext ctx)
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC uint32_t Cap_getDeviceCount(CapContext ctx)
+OPENPNP_CAPTURE_PUBLIC uint32_t Cap_getDeviceCount(CapContext ctx)
 {
     if (ctx != 0)
     {
@@ -67,7 +67,7 @@ DLLPUBLIC uint32_t Cap_getDeviceCount(CapContext ctx)
     return 0;
 }
 
-DLLPUBLIC const char* Cap_getDeviceName(CapContext ctx, CapDeviceID id)
+OPENPNP_CAPTURE_PUBLIC const char* Cap_getDeviceName(CapContext ctx, CapDeviceID id)
 {
     if (ctx != 0)
     {
@@ -76,7 +76,7 @@ DLLPUBLIC const char* Cap_getDeviceName(CapContext ctx, CapDeviceID id)
     return 0;
 }
 
-DLLPUBLIC const char* Cap_getDeviceUniqueID(CapContext ctx, CapDeviceID id)
+OPENPNP_CAPTURE_PUBLIC const char* Cap_getDeviceUniqueID(CapContext ctx, CapDeviceID id)
 {
     if (ctx != 0)
     {
@@ -85,7 +85,7 @@ DLLPUBLIC const char* Cap_getDeviceUniqueID(CapContext ctx, CapDeviceID id)
     return 0;    
 }
 
-DLLPUBLIC int32_t Cap_getNumFormats(CapContext ctx, CapDeviceID id)
+OPENPNP_CAPTURE_PUBLIC int32_t Cap_getNumFormats(CapContext ctx, CapDeviceID id)
 {
     if (ctx != 0)
     {
@@ -94,7 +94,7 @@ DLLPUBLIC int32_t Cap_getNumFormats(CapContext ctx, CapDeviceID id)
     return -1;
 }
 
-DLLPUBLIC CapResult Cap_getFormatInfo(CapContext ctx, CapDeviceID index, CapFormatID id, CapFormatInfo *info)
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_getFormatInfo(CapContext ctx, CapDeviceID index, CapFormatID id, CapFormatInfo *info)
 {
     if (ctx != 0)
     {
@@ -106,12 +106,12 @@ DLLPUBLIC CapResult Cap_getFormatInfo(CapContext ctx, CapDeviceID index, CapForm
     return CAPRESULT_ERR;    
 }
 
-DLLPUBLIC void Cap_setLogLevel(uint32_t level)
+OPENPNP_CAPTURE_PUBLIC void Cap_setLogLevel(uint32_t level)
 {
     setLogLevel(level);
 }
 
-DLLPUBLIC CapStream Cap_openStream(CapContext ctx, CapDeviceID index, CapFormatID formatID)
+OPENPNP_CAPTURE_PUBLIC CapStream Cap_openStream(CapContext ctx, CapDeviceID index, CapFormatID formatID)
 {
     if (ctx != 0)
     {
@@ -121,7 +121,7 @@ DLLPUBLIC CapStream Cap_openStream(CapContext ctx, CapDeviceID index, CapFormatI
     return -1;
 }
 
-DLLPUBLIC CapResult Cap_closeStream(CapContext ctx, CapStream stream)
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_closeStream(CapContext ctx, CapStream stream)
 {
     if (ctx != 0)
     {
@@ -131,7 +131,7 @@ DLLPUBLIC CapResult Cap_closeStream(CapContext ctx, CapStream stream)
     return CAPRESULT_OK;
 }
 
-DLLPUBLIC uint32_t Cap_isOpenStream(CapContext ctx, CapStream stream)
+OPENPNP_CAPTURE_PUBLIC uint32_t Cap_isOpenStream(CapContext ctx, CapStream stream)
 {
     if (ctx != 0)
     {
@@ -141,7 +141,7 @@ DLLPUBLIC uint32_t Cap_isOpenStream(CapContext ctx, CapStream stream)
     return 0;   // closed stream
 }
 
-DLLPUBLIC CapResult Cap_captureFrame(CapContext ctx, CapStream stream, void *RGBbufferPtr, uint32_t RGBbufferBytes)
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_captureFrame(CapContext ctx, CapStream stream, void *RGBbufferPtr, uint32_t RGBbufferBytes)
 {
     if (ctx != 0)
     {
@@ -151,7 +151,7 @@ DLLPUBLIC CapResult Cap_captureFrame(CapContext ctx, CapStream stream, void *RGB
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC uint32_t Cap_hasNewFrame(CapContext ctx, CapStream stream)
+OPENPNP_CAPTURE_PUBLIC uint32_t Cap_hasNewFrame(CapContext ctx, CapStream stream)
 {
     if (ctx != 0)
     {
@@ -161,7 +161,7 @@ DLLPUBLIC uint32_t Cap_hasNewFrame(CapContext ctx, CapStream stream)
     return 0;
 }
 
-DLLPUBLIC uint32_t Cap_getStreamFrameCount(CapContext ctx, CapStream stream)
+OPENPNP_CAPTURE_PUBLIC uint32_t Cap_getStreamFrameCount(CapContext ctx, CapStream stream)
 {
     if (ctx != 0)
     {
@@ -175,7 +175,7 @@ DLLPUBLIC uint32_t Cap_getStreamFrameCount(CapContext ctx, CapStream stream)
 
 // not used for now..
 
-DLLPUBLIC CapResult Cap_setFrameRate(CapContext ctx, CapStream stream, uint32_t fps)
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_setFrameRate(CapContext ctx, CapStream stream, uint32_t fps)
 {
     if (ctx != 0)
     {
@@ -190,7 +190,7 @@ DLLPUBLIC CapResult Cap_setFrameRate(CapContext ctx, CapStream stream, uint32_t 
 }
 #endif
 
-DLLPUBLIC CapResult Cap_getPropertyLimits(CapContext ctx, CapStream stream, CapPropertyID propID, 
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_getPropertyLimits(CapContext ctx, CapStream stream, CapPropertyID propID, 
     int32_t *min, int32_t *max, int32_t *dValue)
 {
     if (ctx != 0)
@@ -205,7 +205,7 @@ DLLPUBLIC CapResult Cap_getPropertyLimits(CapContext ctx, CapStream stream, CapP
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC CapResult Cap_setProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t value)
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_setProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t value)
 {
     if (ctx != 0)
     {
@@ -219,7 +219,7 @@ DLLPUBLIC CapResult Cap_setProperty(CapContext ctx, CapStream stream, CapPropert
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC CapResult Cap_setAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t bOnOff)
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_setAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t bOnOff)
 {
     if (ctx != 0)
     {
@@ -233,7 +233,7 @@ DLLPUBLIC CapResult Cap_setAutoProperty(CapContext ctx, CapStream stream, CapPro
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC CapResult Cap_getProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t *outValue)
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_getProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t *outValue)
 {
     if (outValue == NULL)
     {
@@ -254,7 +254,7 @@ DLLPUBLIC CapResult Cap_getProperty(CapContext ctx, CapStream stream, CapPropert
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t *outValue)
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t *outValue)
 {
     if (outValue == NULL)
     {
@@ -275,12 +275,12 @@ DLLPUBLIC CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPro
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC void Cap_installCustomLogFunction(CapCustomLogFunc logFunc)
+OPENPNP_CAPTURE_PUBLIC void Cap_installCustomLogFunction(CapCustomLogFunc logFunc)
 {
     installCustomLogFunction(logFunc);
 }
 
-DLLPUBLIC const char* Cap_getLibraryVersion()
+OPENPNP_CAPTURE_PUBLIC const char* Cap_getLibraryVersion()
 {
     #ifndef __LIBVER__
     #define __LIBVER__ "VERSION UNKNOWN"
