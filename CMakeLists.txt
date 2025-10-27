@@ -91,12 +91,7 @@ set_target_properties(openpnp-capture PROPERTIES
                       SOVERSION ${OPENPNP_CAPTURE_LIB_SOVERSION})
 
 IF (WIN32)
-    if(MSVC)
-        # build with static runtime rather than DLL based so that we
-        # don't have to distribute it
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-    endif()
+    set_property(TARGET openpnp-capture PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
     # set the platform identification string
     add_definitions(-D__PLATFORM__="Win ${COMPILERBITS}")
