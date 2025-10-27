@@ -68,19 +68,18 @@ else(CMAKE_BUILD_TYPE MATCHES Release)
 endif(CMAKE_BUILD_TYPE MATCHES Release)
 
 # create our capture library
-if(BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
-    set(LIBRARY_TYPE STATIC)
+if(NOT BUILD_SHARED_LIBS)
     add_definitions(-DOPENPNPCAPTURE_STATIC)
     message(STATUS "Building static library")
 else()
-    set(LIBRARY_TYPE SHARED)
     message(STATUS "Building shared library")
 endif()
 
-add_library(openpnp-capture ${LIBRARY_TYPE} common/libmain.cpp
-                                           common/context.cpp
-                                           common/logging.cpp
-                                           common/stream.cpp)
+add_library(openpnp-capture
+        common/libmain.cpp
+        common/context.cpp
+        common/logging.cpp
+        common/stream.cpp)
 
 target_include_directories(openpnp-capture PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
