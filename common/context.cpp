@@ -27,6 +27,7 @@
 
 #include <vector>
 #include "context.h"
+#include <functional>
 #include "logging.h"
 #include "stream.h"
 
@@ -353,6 +354,13 @@ bool Context::getStreamAutoProperty(int32_t streamID, uint32_t propertyID, bool 
     Stream* stream = m_streams[streamID];
     if (stream == nullptr) return false;
     return stream->getAutoProperty(propertyID, enable);
+}
+
+bool Context::setStreamCaptureCallback(int32_t streamID, CapCaptureCallback callback) {
+    Stream* stream = m_streams[streamID];
+    if (stream == nullptr) return false;
+    stream->setCaptureCallback(std::function<void()>{[this, streamID, callback](){ callback(this, streamID);}} );
+    return true;
 }
 
 /** convert a FOURCC uint32_t to human readable form */

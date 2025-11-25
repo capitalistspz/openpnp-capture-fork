@@ -277,6 +277,14 @@ OPENPNP_CAPTURE_PUBLIC CapResult Cap_getProperty(CapContext ctx, CapStream strea
 */
 OPENPNP_CAPTURE_PUBLIC CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t *outValue);
 
+typedef void(*CapCaptureCallback)(CapContext, CapStream);
+
+/* set a function to be called when a new frame is obtained
+ * returns: CAPRESULT_OK if all is well
+ *          CAPRESULT_ERR if context or stream are invalid.
+*/
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_setCaptureCallback(CapContext ctx, CapStream stream, CapCaptureCallback callback);
+
 /********************************************************************************** 
      DEBUGGING
 **********************************************************************************/

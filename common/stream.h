@@ -28,6 +28,7 @@
 #ifndef stream_h
 #define stream_h
 
+#include <functional>
 #include <stdint.h>
 #include <vector>
 #include <mutex>
@@ -52,7 +53,9 @@ public:
         uint32_t fourCC, uint32_t fps) = 0;
 
     /** Close a capture stream */
-    virtual void close() {};
+    virtual void close() {}
+
+    void setCaptureCallback(std::function<void()>&& function);;
 
     /** Returns true if a new frame is available for reading using 'captureFrame'. 
         The internal new frame flag is reset by captureFrame.
@@ -125,6 +128,7 @@ protected:
     bool        m_newFrame;                 ///< new frame buffer flag
     std::vector<uint8_t> m_frameBuffer;     ///< raw frame buffer
     uint32_t    m_frames;                   ///< number of frames captured
+    std::function<void()> m_captureCallback; ///< called when a frame is captured
 };
 
 #endif

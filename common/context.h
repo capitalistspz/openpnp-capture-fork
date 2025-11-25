@@ -174,6 +174,8 @@ public:
     */
     bool getStreamAutoProperty(int32_t stream, uint32_t propID, bool &enable);
 
+    bool setStreamCaptureCallback(int32_t streamID, CapCaptureCallback callback);
+
 protected:
     /** Enumerate all capture devices and put their 
         information (name, buffer formats etc) into 

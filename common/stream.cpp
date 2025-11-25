@@ -49,6 +49,12 @@ Stream::~Stream()
     //Note: close() should be called/handled by the PlatformStream!
 }
 
+void Stream::setCaptureCallback(std::function<void()> &&function) {
+    m_bufferMutex.lock();
+    m_captureCallback = std::move(function);
+    m_bufferMutex.unlock();
+}
+
 bool Stream::hasNewFrame()
 {
     m_bufferMutex.lock();
@@ -102,5 +108,8 @@ void Stream::submitBuffer(const uint8_t *ptr, size_t bytes)
         m_newFrame = true; 
         m_frames++;
     }
+    std::function<void()> callback = m_captureCallback;
     m_bufferMutex.unlock();
+    if (callback)
+        callback();
 }

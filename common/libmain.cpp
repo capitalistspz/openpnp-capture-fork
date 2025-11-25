@@ -275,6 +275,15 @@ OPENPNP_CAPTURE_PUBLIC CapResult Cap_getAutoProperty(CapContext ctx, CapStream s
     return CAPRESULT_ERR;
 }
 
+OPENPNP_CAPTURE_PUBLIC CapResult Cap_setCaptureCallback(CapContext ctx, CapStream stream, CapCaptureCallback callback) {
+    Context* c = reinterpret_cast<Context *>(ctx);
+    if (ctx == nullptr)
+        return CAPRESULT_ERR;
+    if (!c->setStreamCaptureCallback(stream, callback))
+        return CAPRESULT_ERR;
+    return CAPRESULT_OK;
+}
+
 OPENPNP_CAPTURE_PUBLIC void Cap_installCustomLogFunction(CapCustomLogFunc logFunc)
 {
     installCustomLogFunction(logFunc);
