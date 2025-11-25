@@ -10,7 +10,7 @@
 # Author: Niels A. Moseley
 #
 
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.21.1)
 project (openpnp-capture-test)
 
 set (SOURCE main.cpp ../../common/logging.cpp)
