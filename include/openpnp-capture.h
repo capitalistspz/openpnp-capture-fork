@@ -33,15 +33,7 @@
 
 #include <stdint.h>
 
-// 
-//
-#if defined(__clang__)
-    #define SO_IMPORT 
-    #define SO_EXPORT    
-#elif defined(__GNUC__) || defined(__GNUG__)
-    #define SO_IMPORT
-    #define SO_EXPORT
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
     #ifndef OPENPNPCAPTURE_STATIC
         #define SO_IMPORT __declspec(dllimport)
         #define SO_EXPORT __declspec(dllexport)
@@ -49,6 +41,12 @@
         #define SO_IMPORT
         #define SO_EXPORT
     #endif
+#elif defined(__GNUC__) || defined(__GNUG__)
+    #define SO_IMPORT __attribute__((__visibility__("default")))
+    #define SO_EXPORT __attribute__((__visibility__("default")))
+#elif defined(__clang__)
+    #define SO_IMPORT __attribute__((__visibility__("default")))
+    #define SO_EXPORT __attribute__((__visibility__("default")))
 #else
     #error("Unknown compiler")
 #endif
