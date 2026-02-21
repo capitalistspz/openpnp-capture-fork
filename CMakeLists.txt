@@ -29,6 +29,10 @@ elseif(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS ON)
 endif()
 
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
 # make sure the libjpegturbo is compiled with the
 # position independent flag -fPIC
 IF (UNIX)
