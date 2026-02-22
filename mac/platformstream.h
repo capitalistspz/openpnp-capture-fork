@@ -44,8 +44,8 @@
 
 namespace openpnp_capture
 {
-    class openpnp_capture::Context;         // pre-declaration
-    class openpnp_capture::PlatformStream;  // pre-declaration
+    class Context;         // pre-declaration
+    class PlatformStream;  // pre-declaration
 }
 
 /** An OBJC++ interface to handle callbacks from the
