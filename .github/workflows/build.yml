@@ -98,7 +98,7 @@ jobs:
           mkdir build
           mkdir deploy
           cd build
-          cmake ..
+          cmake -DBUILD_SHARED_LIBS=ON ..
           cmake --build . --config Release
           cd ..
           cp build/win/tests/Release/openpnp-capture-test.exe deploy/openpnp-capture-test-${{ matrix.os }}-${{ matrix.arch }}.exe
