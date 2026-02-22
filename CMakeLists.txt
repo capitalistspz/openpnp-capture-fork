@@ -16,18 +16,7 @@ set(OPENPNP_CAPTURE_LIB_VERSION "0.0.28" CACHE STRING "openpnp-capture library v
 set(OPENPNP_CAPTURE_LIB_SOVERSION "0" CACHE STRING "openpnp-capture library soversion")
 
 # Library type options
-option(BUILD_SHARED_LIBS "Build shared library" ON)
-option(BUILD_STATIC_LIBS "Build static library" OFF)
 option(LINK_DYNAMIC_MSVC_RUNTIME "Link MSVC runtime statically" OFF)
-
-# Validate library type options
-if(BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS)
-    message(WARNING "Both BUILD_STATIC_LIBS and BUILD_SHARED_LIBS are enabled. Building static library only.")
-    set(BUILD_SHARED_LIBS OFF)
-elseif(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
-    message(STATUS "Neither BUILD_STATIC_LIBS nor BUILD_SHARED_LIBS specified. Defaulting to shared library.")
-    set(BUILD_SHARED_LIBS ON)
-endif()
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
@@ -77,19 +66,19 @@ else(CMAKE_BUILD_TYPE MATCHES Release)
 endif(CMAKE_BUILD_TYPE MATCHES Release)
 
 # create our capture library
-if(BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
-    set(LIBRARY_TYPE STATIC)
-    add_definitions(-DOPENPNPCAPTURE_STATIC)
-    message(STATUS "Building static library")
+if(BUILD_SHARED_LIBS)
+    message(STATUS "OPENPNP-CAPTURE: Building shared library")
+
 else()
-    set(LIBRARY_TYPE SHARED)
-    message(STATUS "Building shared library")
+    add_definitions(-DOPENPNPCAPTURE_STATIC)
+    message(STATUS "OPENPNP-CAPTURE: Building static library")
 endif()
 
-add_library(openpnp-capture ${LIBRARY_TYPE} common/libmain.cpp
-                                           common/context.cpp
-                                           common/logging.cpp
-                                           common/stream.cpp)
+add_library(openpnp-capture
+        common/libmain.cpp
+        common/context.cpp
+        common/logging.cpp
+        common/stream.cpp)
 
 target_include_directories(openpnp-capture PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
