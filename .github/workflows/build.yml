@@ -19,7 +19,7 @@ jobs:
           mkdir build
           mkdir deploy
           cd build
-          cmake ..
+          cmake -DBUILD_SHARED_LIBS=ON ..
           make
           cd ..
           cp build/mac/tests/openpnp-capture-test deploy/openpnp-capture-test-${{ matrix.os }}-${{ matrix.arch }}
@@ -58,7 +58,7 @@ jobs:
           mkdir build
           mkdir deploy
           cd build
-          cmake ..
+          cmake -DBUILD_SHARED_LIBS=ON ..
           make
           cd ..
           cp build/mac/tests/openpnp-capture-test deploy/openpnp-capture-test-${{ matrix.os }}-${{ matrix.arch }}
@@ -136,7 +136,7 @@ jobs:
           mkdir build
           mkdir deploy
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ..
           make
           cd ..
           cp build/linux/tests/openpnp-capture-test deploy/openpnp-capture-test-${{ matrix.os }}-${{ matrix.arch }}
@@ -174,7 +174,7 @@ jobs:
           mkdir build
           mkdir deploy
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ..
           make
           cd ..
           cp build/linux/tests/openpnp-capture-test deploy/openpnp-capture-test-${{ matrix.os }}-${{ matrix.arch }}
