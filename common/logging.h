@@ -39,22 +39,24 @@
 #define LOG_DEBUG 7
 #define LOG_VERBOSE 8
 
-/** Log information or an error. The format is the same as printf */
-void LOG(uint32_t logLevel, const char *format, ...);
+namespace openpnp_capture
+{
+    /** Log information or an error. The format is the same as printf */
+    void LOG(uint32_t logLevel, const char *format, ...);
 
-/** Set the log leveel */
-void setLogLevel(uint32_t logLevel);
+    /** Set the log leveel */
+    void setLogLevel(uint32_t logLevel);
 
-/** Get the log level */
-uint32_t getLogLevel();
+    /** Get the log level */
+    uint32_t getLogLevel();
 
-/** define a custom logging function callback */
-typedef void (*customLogFunc)(uint32_t logLevel, const char *logString);
+    /** define a custom logging function callback */
+    typedef void (*customLogFunc)(uint32_t logLevel, const char *logString);
 
-/** Install a custom callback function for the log.
-    Note: your custom callback function might not be called
-          from the same thead, depending on the platform!
-*/
-void installCustomLogFunction(customLogFunc logfunc);
-
+    /** Install a custom callback function for the log.
+        Note: your custom callback function might not be called
+              from the same thead, depending on the platform!
+    */
+    void installCustomLogFunction(customLogFunc logfunc);
+}
 #endif

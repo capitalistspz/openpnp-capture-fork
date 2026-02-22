@@ -33,98 +33,100 @@
 #include <mutex>
 #include "logging.h"
 
-class Context;      // pre-declaration
-class deviceInfo;   // pre-declaration
-class Stream;       // pre-declaration
-
-
-/** The stream class handles the capturing of a single device */
-class Stream
+namespace openpnp_capture
 {
-public:
-    Stream();
-    virtual ~Stream();
+    class Context;      // pre-declaration
+    class deviceInfo;   // pre-declaration
+    class Stream;       // pre-declaration
 
-    /** Open a capture stream to a device and request a specific (internal) stream format. 
-        When succesfully opened, capturing starts immediately.
-    */
-    virtual bool open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height, 
-        uint32_t fourCC, uint32_t fps) = 0;
 
-    /** Close a capture stream */
-    virtual void close() {};
-
-    /** Returns true if a new frame is available for reading using 'captureFrame'. 
-        The internal new frame flag is reset by captureFrame.
-    */
-    bool hasNewFrame();
-
-    /** Retrieve the most recently captured frame and copy it in a
-        buffer pointed to by RGBbufferPtr. The maximum buffer size 
-        must be supplied in RGBbufferBytes.
-    */
-    bool captureFrame(uint8_t *RGBbufferPtr, uint32_t RGBbufferBytes);
-    
-    /** Set the frame rate of this stream.
-        Returns false if the camera does not support the desired
-        frame rate.
-    */
-    virtual bool setFrameRate(uint32_t fps) = 0;
-
-    /** Returns true if the stream is open and capturing */
-    bool isOpen() const
+    /** The stream class handles the capturing of a single device */
+    class Stream
     {
-        return m_isOpen;
-    }
+    public:
+        Stream();
+        virtual ~Stream();
 
-    /** Return the FOURCC media type of the stream */
-    virtual uint32_t getFOURCC() = 0;
+        /** Open a capture stream to a device and request a specific (internal) stream format.
+            When succesfully opened, capturing starts immediately.
+        */
+        virtual bool open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height,
+            uint32_t fourCC, uint32_t fps) = 0;
 
-    /** Return the number of frames captured.
-        FIXME: protect by mutex 
-    */
-    uint32_t getFrameCount() const
-    {
-        return m_frames;
-    }
+        /** Close a capture stream */
+        virtual void close() {};
 
-    /** get the limits of a camera/stream property (exposure, zoom etc) */
-    virtual bool getPropertyLimits(uint32_t propID, int32_t *min, int32_t *max, int32_t *dValue) = 0;
+        /** Returns true if a new frame is available for reading using 'captureFrame'.
+            The internal new frame flag is reset by captureFrame.
+        */
+        bool hasNewFrame();
 
-    /** set property (exposure, zoom etc) of camera/stream */
-    virtual bool setProperty(uint32_t propID, int32_t value) = 0;
+        /** Retrieve the most recently captured frame and copy it in a
+            buffer pointed to by RGBbufferPtr. The maximum buffer size
+            must be supplied in RGBbufferBytes.
+        */
+        bool captureFrame(uint8_t *RGBbufferPtr, uint32_t RGBbufferBytes);
 
-    /** set automatic state of property (exposure, zoom etc) of camera/stream */
-    virtual bool setAutoProperty(uint32_t propID, bool enabled) = 0;
+        /** Set the frame rate of this stream.
+            Returns false if the camera does not support the desired
+            frame rate.
+        */
+        virtual bool setFrameRate(uint32_t fps) = 0;
 
-    /** get property (exposure, zoom etc) of camera/stream */
-    virtual bool getProperty(uint32_t propID, int32_t &outValue) = 0;
+        /** Returns true if the stream is open and capturing */
+        bool isOpen() const
+        {
+            return m_isOpen;
+        }
 
-    /** get automatic state of property (exposure, zoom etc) of camera/stream */
-    virtual bool getAutoProperty(uint32_t propID, bool &enable) = 0;
+        /** Return the FOURCC media type of the stream */
+        virtual uint32_t getFOURCC() = 0;
 
-protected:
-    /** Thread-safe copying of the 24-bit RGB buffer pointed to
-        by 'ptr' with length 'bytes'.
+        /** Return the number of frames captured.
+            FIXME: protect by mutex
+        */
+        uint32_t getFrameCount() const
+        {
+            return m_frames;
+        }
 
-        If no bitmap conversion needs to take place, call this
-        function from the platform dependent code. Otherwise, re-
-        implement this function with the conversion to avoid
-        needing multiple frame buffers.
+        /** get the limits of a camera/stream property (exposure, zoom etc) */
+        virtual bool getPropertyLimits(uint32_t propID, int32_t *min, int32_t *max, int32_t *dValue) = 0;
 
-    */
-    virtual void submitBuffer(const uint8_t* ptr, size_t bytes);
+        /** set property (exposure, zoom etc) of camera/stream */
+        virtual bool setProperty(uint32_t propID, int32_t value) = 0;
 
-    Context*    m_owner;                    ///< The context object associated with this stream
+        /** set automatic state of property (exposure, zoom etc) of camera/stream */
+        virtual bool setAutoProperty(uint32_t propID, bool enabled) = 0;
 
-    uint32_t    m_width;                    ///< The width of the frame in pixels
-    uint32_t    m_height;                   ///< The height of the frame in pixels
-    bool        m_isOpen;
+        /** get property (exposure, zoom etc) of camera/stream */
+        virtual bool getProperty(uint32_t propID, int32_t &outValue) = 0;
 
-    std::mutex  m_bufferMutex;              ///< mutex to protect m_frameBuffer and m_newFrame
-    bool        m_newFrame;                 ///< new frame buffer flag
-    std::vector<uint8_t> m_frameBuffer;     ///< raw frame buffer
-    uint32_t    m_frames;                   ///< number of frames captured
-};
+        /** get automatic state of property (exposure, zoom etc) of camera/stream */
+        virtual bool getAutoProperty(uint32_t propID, bool &enable) = 0;
 
+    protected:
+        /** Thread-safe copying of the 24-bit RGB buffer pointed to
+            by 'ptr' with length 'bytes'.
+
+            If no bitmap conversion needs to take place, call this
+            function from the platform dependent code. Otherwise, re-
+            implement this function with the conversion to avoid
+            needing multiple frame buffers.
+
+        */
+        virtual void submitBuffer(const uint8_t* ptr, size_t bytes);
+
+        Context*    m_owner;                    ///< The context object associated with this stream
+
+        uint32_t    m_width;                    ///< The width of the frame in pixels
+        uint32_t    m_height;                   ///< The height of the frame in pixels
+        bool        m_isOpen;
+
+        std::mutex  m_bufferMutex;              ///< mutex to protect m_frameBuffer and m_newFrame
+        bool        m_newFrame;                 ///< new frame buffer flag
+        std::vector<uint8_t> m_frameBuffer;     ///< raw frame buffer
+        uint32_t    m_frames;                   ///< number of frames captured
+    };
+}
 #endif

@@ -1,3 +1,3 @@
-#ifndef __LIBVER__
-#define __LIBVER__ "@GITVERSION@"
+#ifndef OPENPNP_CAPTURE_LIBVER
+#define OPENPNP_CAPTURE_LIBVER "@GITVERSION@"
 #endif

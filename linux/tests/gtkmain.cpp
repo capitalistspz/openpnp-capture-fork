@@ -159,7 +159,7 @@ int updatePicture(gpointer data)
         if (Cap_captureFrame(id->ctx, id->streamID,
             g, id->cols * id->rows * 3) == CAPRESULT_OK)
         {
-            LOG(LOG_VERBOSE, "Cap ACK\n");
+            openpnp_capture::LOG(LOG_VERBOSE, "Cap ACK\n");
             gtk_image_set_from_pixbuf(GTK_IMAGE(id->image), pb);    
             if (id->takeSnapshot)
             {
@@ -169,7 +169,7 @@ int updatePicture(gpointer data)
         }
         else
         {
-            LOG(LOG_VERBOSE, "Cap NACK\n");
+            openpnp_capture::LOG(LOG_VERBOSE, "Cap NACK\n");
         }
     }
     return TRUE; // continue timer
@@ -403,7 +403,7 @@ int main (int argc, char *argv[])
     // abort if the format was -1
     if (deviceFormatID == 0xFFFFFFFF)
     {
-        LOG(LOG_INFO, "Done.\n");
+        openpnp_capture::LOG(LOG_INFO, "Done.\n");
         return 0;
     }
 

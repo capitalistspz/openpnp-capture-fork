@@ -34,74 +34,76 @@
 #define snprintf _snprintf
 #endif
 
-static uint32_t gs_logLevel = LOG_NOTICE;
-static customLogFunc gs_logFunc = NULL;
-
-void installCustomLogFunction(customLogFunc logfunc)
+namespace openpnp_capture
 {
-    gs_logFunc = logfunc;
-}
-
-void LOG(uint32_t logLevel, const char *format, ...)
-{
-    if (logLevel > gs_logLevel)
+    static uint32_t gs_logLevel = LOG_NOTICE;
+    static customLogFunc gs_logFunc = NULL;
+    void installCustomLogFunction(customLogFunc logfunc)
     {
-        return;
+        gs_logFunc = logfunc;
     }
 
-    char logbuffer[1024];
-    char *ptr = logbuffer;
-
-    switch(logLevel)
+    void LOG(uint32_t logLevel, const char *format, ...)
     {
-    case LOG_CRIT:
-        snprintf(logbuffer,1024,"[CRIT] ");
-        ptr += 7;
-        break;        
-    case LOG_ERR:
-        snprintf(logbuffer,1024,"[ERR ] ");
-        ptr += 7;
-        break;
-    case LOG_INFO:
-        snprintf(logbuffer,1024,"[INFO] ");
-        ptr += 7;
-        break;    
-    case LOG_DEBUG:
-        snprintf(logbuffer,1024,"[DBG ] ");
-        ptr += 7;
-        break;
-    case LOG_VERBOSE:
-        snprintf(logbuffer,1024,"[VERB] ");
-        ptr += 7;
-        break;
-    default:
-        break;
+        if (logLevel > gs_logLevel)
+        {
+            return;
+        }
+
+        char logbuffer[1024];
+        char *ptr = logbuffer;
+
+        switch(logLevel)
+        {
+        case LOG_CRIT:
+            snprintf(logbuffer,1024,"[CRIT] ");
+            ptr += 7;
+            break;
+        case LOG_ERR:
+            snprintf(logbuffer,1024,"[ERR ] ");
+            ptr += 7;
+            break;
+        case LOG_INFO:
+            snprintf(logbuffer,1024,"[INFO] ");
+            ptr += 7;
+            break;
+        case LOG_DEBUG:
+            snprintf(logbuffer,1024,"[DBG ] ");
+            ptr += 7;
+            break;
+        case LOG_VERBOSE:
+            snprintf(logbuffer,1024,"[VERB] ");
+            ptr += 7;
+            break;
+        default:
+            break;
+        }
+
+        va_list args;
+
+        va_start(args, format);
+        vsnprintf(ptr, 1024-7, format, args);
+        va_end(args);
+
+        if (gs_logFunc != nullptr)
+        {
+            // custom log functions to no include the
+            // prefix.
+            gs_logFunc(logLevel, ptr);
+        }
+        else
+        {
+            fprintf(stderr, "%s", logbuffer);
+        }
     }
-    
-    va_list args;
 
-    va_start(args, format);
-    vsnprintf(ptr, 1024-7, format, args);
-    va_end(args);
-
-    if (gs_logFunc != nullptr)
+    void setLogLevel(uint32_t logLevel)
     {
-        // custom log functions to no include the 
-        // prefix.
-        gs_logFunc(logLevel, ptr);
+        gs_logLevel = logLevel;
     }
-    else
+
+    uint32_t getLogLevel()
     {
-        fprintf(stderr, "%s", logbuffer);
+        return gs_logLevel;
     }
-}
-
-void setLogLevel(uint32_t logLevel)
-{
-    gs_logLevel = logLevel;
-}
-
-uint32_t getLogLevel()
-{
-    return gs_logLevel;
 }

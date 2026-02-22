@@ -37,43 +37,46 @@
 #include "../common/logging.h"
 #import <AVFoundation/AVFoundation.h>
 
-/** device information struct/object */
-class platformDeviceInfo : public deviceInfo
+namespace openpnp_capture
 {
-public:
-    platformDeviceInfo() : deviceInfo() 
+    /** device information struct/object */
+    class platformDeviceInfo : public deviceInfo
     {
-        m_captureDevice = nullptr;
-        m_pid = 0;
-        m_vid = 0;
-    }
-
-    virtual ~platformDeviceInfo()
-    {
-        //LOG(LOG_DEBUG, "%s\n", CFStringGetCStringPtr(CFCopyTypeIDDescription(CFGetTypeID(m_captureDevice)),kCFStringEncodingUTF8));
-        if (m_captureDevice != nullptr)
+    public:
+        platformDeviceInfo() : deviceInfo()
         {
-            LOG(LOG_DEBUG, "m_captureDevice released\n");
-            CFRelease(m_captureDevice);
+            m_captureDevice = nullptr;
+            m_pid = 0;
+            m_vid = 0;
         }
-        #if 0
-        auto iter = m_platformFormats.begin();
-        while(iter != m_platformFormats.end())
+
+        virtual ~platformDeviceInfo()
         {
-            delete *iter;
-            iter++;
+            //LOG(LOG_DEBUG, "%s\n", CFStringGetCStringPtr(CFCopyTypeIDDescription(CFGetTypeID(m_captureDevice)),kCFStringEncodingUTF8));
+            if (m_captureDevice != nullptr)
+            {
+                LOG(LOG_DEBUG, "m_captureDevice released\n");
+                CFRelease(m_captureDevice);
+            }
+#if 0
+            auto iter = m_platformFormats.begin();
+            while(iter != m_platformFormats.end())
+            {
+                delete *iter;
+                iter++;
+            }
+#endif
         }
-        #endif
-    }
 
-    CFTypeRef m_captureDevice;   ///< pointer to AVCaptureDevice
-    std::vector<AVCaptureDeviceFormat*> m_platformFormats; ///< formats supported by the device
+        CFTypeRef m_captureDevice;   ///< pointer to AVCaptureDevice
+        std::vector<AVCaptureDeviceFormat*> m_platformFormats; ///< formats supported by the device
 
-    // save USB PID/VID so we can access the UVC camera
-    // directly for setting focus/exposure etc.
-    uint16_t m_pid;         // USB product ID (if found) 
-    uint16_t m_vid;         // USB vendor ID (if found)
-    uint32_t m_busLocation; // 10-char hex bus location (if found)
-};
+        // save USB PID/VID so we can access the UVC camera
+        // directly for setting focus/exposure etc.
+        uint16_t m_pid;         // USB product ID (if found)
+        uint16_t m_vid;         // USB vendor ID (if found)
+        uint32_t m_busLocation; // 10-char hex bus location (if found)
+    };
+}
 
 #endif

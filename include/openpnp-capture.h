@@ -35,18 +35,18 @@
 
 #if defined(_MSC_VER)
     #ifndef OPENPNPCAPTURE_STATIC
-        #define SO_IMPORT __declspec(dllimport)
-        #define SO_EXPORT __declspec(dllexport)
+        #define OPENPNP_CAPTURE_IMPORT __declspec(dllimport)
+        #define OPENPNP_CAPTURE_EXPORT __declspec(dllexport)
     #else
-        #define SO_IMPORT
-        #define SO_EXPORT
+        #define OPENPNP_CAPTURE_IMPORT
+        #define OPENPNP_CAPTURE_EXPORT
     #endif
 #elif defined(__GNUC__) || defined(__GNUG__)
-    #define SO_IMPORT __attribute__((__visibility__("default")))
-    #define SO_EXPORT __attribute__((__visibility__("default")))
+    #define OPENPNP_CAPTURE_IMPORT __attribute__((__visibility__("default")))
+    #define OPENPNP_CAPTURE_EXPORT __attribute__((__visibility__("default")))
 #elif defined(__clang__)
-    #define SO_IMPORT __attribute__((__visibility__("default")))
-    #define SO_EXPORT __attribute__((__visibility__("default")))
+    #define OPENPNP_CAPTURE_IMPORT __attribute__((__visibility__("default")))
+    #define OPENPNP_CAPTURE_EXPORT __attribute__((__visibility__("default")))
 #else
     #error("Unknown compiler")
 #endif
@@ -55,15 +55,15 @@
 // even if we're compiling with a C++ compiler
 #ifdef BUILD_OPENPNP_LIBRARY
     #ifdef __cplusplus
-        #define DLLPUBLIC extern "C" SO_EXPORT
+        #define OPENPNP_CAPTURE_API extern "C" OPENPNP_CAPTURE_EXPORT
     #else
-        #define DLLPUBLIC SO_EXPORT
+        #define OPENPNP_CAPTURE_API OPENPNP_CAPTURE_EXPORT
     #endif
 #else
     #ifdef __cplusplus
-        #define DLLPUBLIC extern "C" SO_IMPORT
+        #define OPENPNP_CAPTURE_API extern "C" OPENPNP_CAPTURE_IMPORT
     #else
-        #define DLLPUBLIC SO_IMPORT
+        #define OPENPNP_CAPTURE_API OPENPNP_CAPTURE_IMPORT
     #endif
 #endif
 
@@ -113,13 +113,13 @@ typedef struct
 /** Initialize the capture library
     @return The context ID.
 */
-DLLPUBLIC CapContext Cap_createContext(void);
+OPENPNP_CAPTURE_API CapContext Cap_createContext(void);
 
 /** Un-initialize the capture library context
     @param ctx The ID of the context to destroy.
     @return The context ID.
 */
-DLLPUBLIC CapResult Cap_releaseContext(CapContext ctx);
+OPENPNP_CAPTURE_API CapResult Cap_releaseContext(CapContext ctx);
 
 /** Get the number of capture devices on the system.
     note: this can change dynamically due to the
@@ -127,7 +127,7 @@ DLLPUBLIC CapResult Cap_releaseContext(CapContext ctx);
     @param ctx The ID of the context.
     @return The number of capture devices found.
 */
-DLLPUBLIC uint32_t Cap_getDeviceCount(CapContext ctx);
+OPENPNP_CAPTURE_API uint32_t Cap_getDeviceCount(CapContext ctx);
 
 /** Get the name of a capture device.
     This name is meant to be displayed in GUI applications,
@@ -139,7 +139,7 @@ DLLPUBLIC uint32_t Cap_getDeviceCount(CapContext ctx);
     @param index The device index of the capture device.
     @return a pointer to an UTF-8 string containting the name of the capture device.
 */
-DLLPUBLIC const char* Cap_getDeviceName(CapContext ctx, CapDeviceID index);
+OPENPNP_CAPTURE_API const char* Cap_getDeviceName(CapContext ctx, CapDeviceID index);
 
 /** Get the unique name of a capture device.
     The string contains a unique concatenation
@@ -161,7 +161,7 @@ DLLPUBLIC const char* Cap_getDeviceName(CapContext ctx, CapDeviceID index);
     @param index The device index of the capture device.
     @return a pointer to an UTF-8 string containting the unique ID of the capture device.
 */
-DLLPUBLIC const char* Cap_getDeviceUniqueID(CapContext ctx, CapDeviceID index);
+OPENPNP_CAPTURE_API const char* Cap_getDeviceUniqueID(CapContext ctx, CapDeviceID index);
 
 
 /** Returns the number of formats supported by a certain device.
@@ -171,7 +171,7 @@ DLLPUBLIC const char* Cap_getDeviceUniqueID(CapContext ctx, CapDeviceID index);
     @param index The device index of the capture device.
     @return The number of formats supported or -1 if the device does not exist.
 */
-DLLPUBLIC int32_t Cap_getNumFormats(CapContext ctx, CapDeviceID index);
+OPENPNP_CAPTURE_API int32_t Cap_getNumFormats(CapContext ctx, CapDeviceID index);
 
 /** Get the format information from a device. 
     @param ctx The ID of the context.
@@ -180,7 +180,7 @@ DLLPUBLIC int32_t Cap_getNumFormats(CapContext ctx, CapDeviceID index);
     @param info pointer to a CapFormatInfo structure to be filled with data.
     @return The CapResult.
 */
-DLLPUBLIC CapResult Cap_getFormatInfo(CapContext ctx, CapDeviceID index, CapFormatID id, CapFormatInfo *info); 
+OPENPNP_CAPTURE_API CapResult Cap_getFormatInfo(CapContext ctx, CapDeviceID index, CapFormatID id, CapFormatInfo *info);
 
 
 /********************************************************************************** 
@@ -197,21 +197,21 @@ DLLPUBLIC CapResult Cap_getFormatInfo(CapContext ctx, CapDeviceID index, CapForm
     @param formatID The index/ID of the frame buffer format (0 .. number returned by Cap_getNumFormats() minus 1 ).
     @return The stream ID or -1 if the device does not exist or the stream format ID is incorrect.
 */
-DLLPUBLIC CapStream Cap_openStream(CapContext ctx, CapDeviceID index, CapFormatID formatID);
+OPENPNP_CAPTURE_API CapStream Cap_openStream(CapContext ctx, CapDeviceID index, CapFormatID formatID);
 
 /** Close a capture stream 
     @param ctx The ID of the context.
     @param stream The stream ID.
     @return CapResult
 */
-DLLPUBLIC CapResult Cap_closeStream(CapContext ctx, CapStream stream);
+OPENPNP_CAPTURE_API CapResult Cap_closeStream(CapContext ctx, CapStream stream);
 
 /** Check if a stream is open, i.e. is capturing data. 
     @param ctx The ID of the context.
     @param stream The stream ID.
     @return 1 if the stream is open and capturing, else 0. 
 */
-DLLPUBLIC uint32_t Cap_isOpenStream(CapContext ctx, CapStream stream);
+OPENPNP_CAPTURE_API uint32_t Cap_isOpenStream(CapContext ctx, CapStream stream);
 
 /********************************************************************************** 
      FRAME CAPTURING / INFO
@@ -220,14 +220,14 @@ DLLPUBLIC uint32_t Cap_isOpenStream(CapContext ctx, CapStream stream);
 /** this function copies the most recent RGB frame data
     to the given buffer.
 */
-DLLPUBLIC CapResult Cap_captureFrame(CapContext ctx, CapStream stream, void *RGBbufferPtr, uint32_t RGBbufferBytes);
+OPENPNP_CAPTURE_API CapResult Cap_captureFrame(CapContext ctx, CapStream stream, void *RGBbufferPtr, uint32_t RGBbufferBytes);
 
 /** returns 1 if a new frame has been captured, 0 otherwise */
-DLLPUBLIC uint32_t Cap_hasNewFrame(CapContext ctx, CapStream stream);
+OPENPNP_CAPTURE_API uint32_t Cap_hasNewFrame(CapContext ctx, CapStream stream);
 
 /** returns the number of frames captured during the lifetime of the stream. 
     For debugging purposes */
-DLLPUBLIC uint32_t Cap_getStreamFrameCount(CapContext ctx, CapStream stream);
+OPENPNP_CAPTURE_API uint32_t Cap_getStreamFrameCount(CapContext ctx, CapStream stream);
 
 
 /********************************************************************************** 
@@ -240,7 +240,7 @@ DLLPUBLIC uint32_t Cap_getStreamFrameCount(CapContext ctx, CapStream stream);
              CAPRESULT_PROPERTYNOTSUPPORTED if property not available.
              CAPRESULT_ERR if context, stream are invalid.
 */
-DLLPUBLIC CapResult Cap_getPropertyLimits(CapContext ctx, CapStream stream, CapPropertyID propID, 
+OPENPNP_CAPTURE_API CapResult Cap_getPropertyLimits(CapContext ctx, CapStream stream, CapPropertyID propID,
     int32_t *min, int32_t *max, int *dValue);
 
 /** set the value of a camera/stream property (e.g. zoom, exposure etc) 
@@ -249,7 +249,7 @@ DLLPUBLIC CapResult Cap_getPropertyLimits(CapContext ctx, CapStream stream, CapP
              CAPRESULT_PROPERTYNOTSUPPORTED if property not available.
              CAPRESULT_ERR if context, stream are invalid.
 */
-DLLPUBLIC CapResult Cap_setProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t value);
+OPENPNP_CAPTURE_API CapResult Cap_setProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t value);
 
 /** set the automatic flag of a camera/stream property (e.g. zoom, focus etc) 
 
@@ -257,7 +257,7 @@ DLLPUBLIC CapResult Cap_setProperty(CapContext ctx, CapStream stream, CapPropert
              CAPRESULT_PROPERTYNOTSUPPORTED if property not available.
              CAPRESULT_ERR if context, stream are invalid.
 */
-DLLPUBLIC CapResult Cap_setAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t bOnOff);
+OPENPNP_CAPTURE_API CapResult Cap_setAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t bOnOff);
 
 /** get the value of a camera/stream property (e.g. zoom, exposure etc) 
 
@@ -265,7 +265,7 @@ DLLPUBLIC CapResult Cap_setAutoProperty(CapContext ctx, CapStream stream, CapPro
              CAPRESULT_PROPERTYNOTSUPPORTED if property not available.
              CAPRESULT_ERR if context, stream are invalid or outValue == NULL.
 */
-DLLPUBLIC CapResult Cap_getProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t *outValue);
+OPENPNP_CAPTURE_API CapResult Cap_getProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t *outValue);
 
 /** get the automatic flag of a camera/stream property (e.g. zoom, focus etc) 
 
@@ -273,7 +273,7 @@ DLLPUBLIC CapResult Cap_getProperty(CapContext ctx, CapStream stream, CapPropert
              CAPRESULT_PROPERTYNOTSUPPORTED if property not available.
              CAPRESULT_ERR if context, stream are invalid.
 */
-DLLPUBLIC CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t *outValue);
+OPENPNP_CAPTURE_API CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t *outValue);
 
 /********************************************************************************** 
      DEBUGGING
@@ -295,7 +295,7 @@ DLLPUBLIC CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPro
     LOG_VERBOSE   | 8
 
 */
-DLLPUBLIC void Cap_setLogLevel(uint32_t level);
+OPENPNP_CAPTURE_API void Cap_setLogLevel(uint32_t level);
 
 
 typedef void (*CapCustomLogFunc)(uint32_t level, const char *string);
@@ -307,7 +307,7 @@ typedef void (*CapCustomLogFunc)(uint32_t level, const char *string);
 
         void func(uint32_t level, const char *string);
 */
-DLLPUBLIC void Cap_installCustomLogFunction(CapCustomLogFunc logFunc);
+OPENPNP_CAPTURE_API void Cap_installCustomLogFunction(CapCustomLogFunc logFunc);
 
 /** Return the version of the library as a string.
     In addition to a version number, this should 
@@ -319,12 +319,12 @@ DLLPUBLIC void Cap_installCustomLogFunction(CapCustomLogFunc logFunc);
     When building the library, please set the 
     following defines in the build environment:
 
-    __LIBVER__
-    __PLATFORM__
-    __BUILDTYPE__
+    OPENPNP_CAPTURE_LIBVER
+    OPENPNP_CAPTURE_PLATFORM
+    OPENPNP_CAPTURE_BUILDTYPE
     
 */
 
-DLLPUBLIC const char* Cap_getLibraryVersion();
+OPENPNP_CAPTURE_API const char* Cap_getLibraryVersion();
 
 #endif

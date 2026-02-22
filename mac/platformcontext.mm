@@ -34,6 +34,8 @@
 #include <chrono>
 #include <thread>
 
+namespace openpnp_capture {
+
 // a platform factory function needed by
 // libmain.cpp
 Context* createPlatformContext()
@@ -88,17 +90,17 @@ bool PlatformContext::enumerateDevices()
     LOG(LOG_DEBUG, "enumerateDevices called\n");
 
     m_devices.clear();
-    
+
     NSMutableArray *deviceTypes = [NSMutableArray array];
     [deviceTypes addObject:AVCaptureDeviceTypeBuiltInWideAngleCamera];
-    
+
     if (@available(macOS 14.0, *)) {
         [deviceTypes addObject:AVCaptureDeviceTypeContinuityCamera];
         [deviceTypes addObject:AVCaptureDeviceTypeExternal];
     } else {
         [deviceTypes addObject:AVCaptureDeviceTypeExternalUnknown];
     }
-    
+
     AVCaptureDeviceDiscoverySession *captureDeviceDiscoverySession = [AVCaptureDeviceDiscoverySession discoverySessionWithDeviceTypes:deviceTypes
                                           mediaType:AVMediaTypeVideo
                                            position:AVCaptureDevicePositionUnspecified];
@@ -119,14 +121,14 @@ bool PlatformContext::enumerateDevices()
         if (vidRange.length > 0)
         {
             unsigned long maxLen = device.modelID.length - vidRange.location - 9;
-            maxLen = (maxLen > 5) ? 5 : maxLen;        
+            maxLen = (maxLen > 5) ? 5 : maxLen;
             deviceInfo->m_vid = [[device.modelID substringWithRange:NSMakeRange(vidRange.location + 9, maxLen)] intValue];
         }
         else
         {
             LOG(LOG_WARNING, "OSX Unable to extract vendor ID\n");
         }
-        
+
 
         NSRange pidRange = [device.modelID rangeOfString:@"ProductID_"];
         if (pidRange.length > 0)
@@ -139,7 +141,7 @@ bool PlatformContext::enumerateDevices()
         {
             LOG(LOG_WARNING, "OSX Unable to extract product ID\n");
         }
-        
+
 
         LOG(LOG_DEBUG, "USB      : vid=%04X  pid=%04X\n", deviceInfo->m_vid, deviceInfo->m_pid);
 
@@ -149,7 +151,7 @@ bool PlatformContext::enumerateDevices()
         if (device.uniqueID.length == 18)
         {
             std::string locStdStr = std::string(device.uniqueID.UTF8String);
-            
+
             // sanity check for PID and VID to make sure the unique ID is indeed
             // in the format we expect..
             char pidStr[5];
@@ -174,14 +176,14 @@ bool PlatformContext::enumerateDevices()
                 LOG(LOG_DEBUG, "Extracted PID %s\n", locStdStr.substr(14,4).c_str());
             }
         }
-        
+
         if (deviceInfo->m_busLocation == 0)
         {
             LOG(LOG_WARNING, "OSX Unique ID is not exactly 18 characters - wrong format to extract location.\n");
             LOG(LOG_WARNING, "We might have trouble identifying the UVC control interface.\n");
         }
 
-        for (AVCaptureDeviceFormat* format in device.formats) 
+        for (AVCaptureDeviceFormat* format in device.formats)
         {
             //Do we really need a complete list of frame rates?
             //Hopefully, we can search for a suitable frame rate
@@ -211,9 +213,9 @@ bool PlatformContext::enumerateDevices()
             formatInfo.width = dims.width;
             formatInfo.height = dims.height;
             formatInfo.fourcc = CMFormatDescriptionGetMediaSubType(format.formatDescription);
-            
+
             uint32_t maxFrameRate = 0;
-            for (AVFrameRateRange* frameRateRange in format.videoSupportedFrameRateRanges) 
+            for (AVFrameRateRange* frameRateRange in format.videoSupportedFrameRateRanges)
             {
                 // find max frame rate
                 if (maxFrameRate < frameRateRange.maxFrameRate)
@@ -225,10 +227,10 @@ bool PlatformContext::enumerateDevices()
             deviceInfo->m_formats.push_back(formatInfo);
             deviceInfo->m_platformFormats.push_back(format);
         }
-        
+
         m_devices.push_back(deviceInfo);
     }
-    
+
     return true;
 }
-
+}

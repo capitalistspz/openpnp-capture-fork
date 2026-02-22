@@ -30,15 +30,17 @@
 #include <vector>
 #include "openpnp-capture.h"
 
-/** device information struct/object */
-class deviceInfo
+namespace openpnp_capture
 {
-public:
-    virtual ~deviceInfo() {}
+    /** device information struct/object */
+    class deviceInfo
+    {
+    public:
+        virtual ~deviceInfo() {}
 
-    std::string                 m_name;     ///< UTF-8 printable name
-    std::string                 m_uniqueID; ///< UTF-8 string uniquely identifying a camera
-    std::vector<CapFormatInfo>  m_formats;  ///< available buffer formats
-};
-
+        std::string                 m_name;     ///< UTF-8 printable name
+        std::string                 m_uniqueID; ///< UTF-8 string uniquely identifying a camera
+        std::vector<CapFormatInfo>  m_formats;  ///< available buffer formats
+    };
+}
 #endif

@@ -42,8 +42,11 @@
 
 #include "uvcctrl.h"
 
-class Context;         // pre-declaration
-class PlatformStream;  // pre-declaration
+namespace openpnp_capture
+{
+    class openpnp_capture::Context;         // pre-declaration
+    class openpnp_capture::PlatformStream;  // pre-declaration
+}
 
 /** An OBJC++ interface to handle callbacks from the
     video sub-system on OSX */
@@ -51,7 +54,7 @@ class PlatformStream;  // pre-declaration
 NSObject<AVCaptureVideoDataOutputSampleBufferDelegate>
 {
 @public
-    PlatformStream *m_stream;
+    openpnp_capture::PlatformStream *m_stream;
 }
 - (void)captureOutput:(AVCaptureOutput *)out
     didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -61,62 +64,63 @@ NSObject<AVCaptureVideoDataOutputSampleBufferDelegate>
     fromConnection:(AVCaptureConnection *)connection;
 @end
 
-
-class PlatformStream : public Stream
+namespace openpnp_capture
 {
-public:
-    PlatformStream();
-    virtual ~PlatformStream();
+    class PlatformStream : public Stream
+    {
+    public:
+        PlatformStream();
+        virtual ~PlatformStream();
 
-    /** Open a capture stream to a device and request a specific (internal) stream format. 
-        When succesfully opened, capturing starts immediately.
-    */
-    virtual bool open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height, 
-        uint32_t fourCC, uint32_t fps) override;
+        /** Open a capture stream to a device and request a specific (internal) stream format.
+            When succesfully opened, capturing starts immediately.
+        */
+        virtual bool open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height,
+            uint32_t fourCC, uint32_t fps) override;
 
-    /** Close a capture stream */
-    virtual void close() override;
+        /** Close a capture stream */
+        virtual void close() override;
 
-    /** Return the FOURCC media type of the stream */
-    virtual uint32_t getFOURCC() override;
+        /** Return the FOURCC media type of the stream */
+        virtual uint32_t getFOURCC() override;
 
-    /** get the limits of a camera/stream property (exposure, zoom etc) */
-    virtual bool getPropertyLimits(uint32_t propID, int32_t *min, int32_t *max, 
-        int32_t *dvalue) override;
-    
-    /** set property (exposure, zoom etc) of camera/stream */
-    virtual bool setProperty(uint32_t propID, int32_t value) override;
+        /** get the limits of a camera/stream property (exposure, zoom etc) */
+        virtual bool getPropertyLimits(uint32_t propID, int32_t *min, int32_t *max,
+            int32_t *dvalue) override;
 
-    /** set automatic state of property (exposure, zoom etc) of camera/stream */
-    virtual bool setAutoProperty(uint32_t propID, bool enabled) override;
+        /** set property (exposure, zoom etc) of camera/stream */
+        virtual bool setProperty(uint32_t propID, int32_t value) override;
 
-    /** set property (exposure, zoom etc) of camera/stream */
-    virtual bool getProperty(uint32_t propID, int32_t &value) override;
-    
-    /** set automatic state of property (exposure, zoom etc) of camera/stream */
-    virtual bool getAutoProperty(uint32_t propID, bool &enabled) override;
+        /** set automatic state of property (exposure, zoom etc) of camera/stream */
+        virtual bool setAutoProperty(uint32_t propID, bool enabled) override;
 
-    /** public function to handle callbacks from ObjC++ */
-    virtual void callback(const uint8_t* ptr, uint32_t bytes);
+        /** set property (exposure, zoom etc) of camera/stream */
+        virtual bool getProperty(uint32_t propID, int32_t &value) override;
 
-    /** set a new framerate */
-    virtual bool setFrameRate(uint32_t fps) override;
+        /** set automatic state of property (exposure, zoom etc) of camera/stream */
+        virtual bool getAutoProperty(uint32_t propID, bool &enabled) override;
 
-protected:
-    /* AVFoundation objects to control the camera on OSX */
-    PlatformAVCaptureDelegate* m_captureDelegate;
-    AVCaptureSession*   m_nativeSession;
-    AVCaptureDevice*    m_device;       ///< note: we do not own the objecgt itself!
-    dispatch_queue_t    m_queue;
+        /** public function to handle callbacks from ObjC++ */
+        virtual void callback(const uint8_t* ptr, uint32_t bytes);
 
-    std::vector<uint8_t> m_tmpBuffer;   ///< intermediate buffer for 32->24 bit conversion
+        /** set a new framerate */
+        virtual bool setFrameRate(uint32_t fps) override;
 
-    UVCCtrl             *m_uvc;         ///< UVC USB control object, can be NULL!
+    protected:
+        /* AVFoundation objects to control the camera on OSX */
+        PlatformAVCaptureDelegate* m_captureDelegate;
+        AVCaptureSession*   m_nativeSession;
+        AVCaptureDevice*    m_device;       ///< note: we do not own the objecgt itself!
+        dispatch_queue_t    m_queue;
 
-    /** generate FOURCC string from a uint32 */
-    std::string genFOURCCstring(uint32_t v);
+        std::vector<uint8_t> m_tmpBuffer;   ///< intermediate buffer for 32->24 bit conversion
 
-    uint32_t m_fourCC;  ///< current fourCC code for capture stream
-};
+        UVCCtrl             *m_uvc;         ///< UVC USB control object, can be NULL!
 
+        /** generate FOURCC string from a uint32 */
+        std::string genFOURCCstring(uint32_t v);
+
+        uint32_t m_fourCC;  ///< current fourCC code for capture stream
+    };
+}
 #endif

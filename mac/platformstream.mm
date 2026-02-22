@@ -95,11 +95,10 @@
 
 @end
 
-
+namespace openpnp_capture {
 // **********************************************************************
 //   PlatformStream implementation
 // **********************************************************************
-
 Stream* createPlatformStream()
 {
     return new PlatformStream();
@@ -126,7 +125,7 @@ PlatformStream::~PlatformStream()
 void PlatformStream::close()
 {
     LOG(LOG_INFO, "closing stream\n");
-    
+
     if (m_nativeSession != nullptr)
     {
         [m_nativeSession stopRunning];
@@ -139,7 +138,7 @@ void PlatformStream::close()
     m_device = nullptr; // note: we don't own the device object!
 }
 
-bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height, 
+bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height,
     uint32_t fourCC, uint32_t fps)
 {
     if (m_isOpen)
@@ -150,7 +149,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
 
     if (owner == nullptr)
     {
-        LOG(LOG_ERR,"open() was with owner=NULL!\n");        
+        LOG(LOG_ERR,"open() was with owner=NULL!\n");
         return false;
     }
 
@@ -170,7 +169,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     if (dinfo->m_captureDevice == nullptr)
     {
         LOG(LOG_CRIT, "m_captureDevice is a NULL pointer!\n");
-        return false;        
+        return false;
     }
 
     //copy the device pointer into stream object
@@ -181,7 +180,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
 
     NSError* error = nil;
     AVCaptureDeviceInput* input = [AVCaptureDeviceInput deviceInputWithDevice:m_device error:&error];
-    if (!input) 
+    if (!input)
     {
         LOG(LOG_ERR, "Error opening native device %s\n", error.localizedDescription.UTF8String);
         return false;
@@ -207,7 +206,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
                 m_fourCC = myFourCC;
                 break;
             }
-        } 
+        }
     }
 
     if (bestFormat == nil)
@@ -215,11 +214,11 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
         LOG(LOG_ERR,"could not find a suitable format\n");
         return false;
     }
-    
+
     //FIXME: error checking..
     [m_device lockForConfiguration:NULL];
     m_device.activeFormat = bestFormat;
-    
+
     m_width = width;
     m_height = height;
     m_owner = owner;
@@ -249,7 +248,7 @@ bool PlatformStream::open(Context *owner, deviceInfo *device, uint32_t width, ui
     }
 
     // register the stream with the callback delegate so it can be
-    // called throug the stream->callback() method 
+    // called throug the stream->callback() method
     m_captureDelegate->m_stream = this;
     [output setSampleBufferDelegate:m_captureDelegate queue:m_queue];
 
@@ -308,7 +307,7 @@ bool PlatformStream::setFrameRate(uint32_t fps)
 uint32_t PlatformStream::getFOURCC()
 {
     //note: OSX stores the fourcc in reverse byte order
-    // compared to Windows or Linux so we swap the 
+    // compared to Windows or Linux so we swap the
     // bytes here to be compatible
 
     uint32_t tmp = m_fourCC;
@@ -332,7 +331,7 @@ bool PlatformStream::setProperty(uint32_t propID, int32_t value)
 /** set automatic state of property (exposure, zoom etc) of camera/stream */
 bool PlatformStream::setAutoProperty(uint32_t propID, bool enabled)
 {
-    if (m_uvc == nullptr) 
+    if (m_uvc == nullptr)
     {
         return false;
     }
@@ -359,7 +358,7 @@ bool PlatformStream::getProperty(uint32_t propID, int32_t &value)
 //        implemented using direct access of UVC cameras
 bool PlatformStream::getAutoProperty(uint32_t propID, bool &enabled)
 {
-    if (m_uvc == nullptr) 
+    if (m_uvc == nullptr)
     {
         return false;
     }
@@ -374,7 +373,7 @@ void PlatformStream::callback(const uint8_t *ptr, uint32_t bytes)
 {
     // here we get 32-bit ARGB buffers, which we need to
     // convert to 24-bit RGB buffers
-    
+
     if (m_tmpBuffer.size() != (m_width*m_height*3))
     {
         // error: temporary buffer is not the right size!
@@ -394,4 +393,5 @@ void PlatformStream::callback(const uint8_t *ptr, uint32_t bytes)
 
     vImageConvert_ARGB8888toRGB888(&src, &dst, 0);
     submitBuffer(&m_tmpBuffer[0], m_tmpBuffer.size());
+}
 }

@@ -42,49 +42,51 @@
 #include "platformdeviceinfo.h"
 #include "../common/context.h"
 
-/** context base class keeps track of all the platform independent
-    objects and information */
-
-class PlatformContext : public Context
+namespace openpnp_capture
 {
-public:
-    /** Create a context for the library.
-        Device enumeration is performed in the constructor,
-        so all devices must be present in the system when
-        the Context is created or devices will not be found.
+    /** context base class keeps track of all the platform independent
+        objects and information */
 
-        Re-enumeration support is pending.
-    */
-    PlatformContext();
-    virtual ~PlatformContext();
+    class PlatformContext : public Context
+    {
+    public:
+        /** Create a context for the library.
+            Device enumeration is performed in the constructor,
+            so all devices must be present in the system when
+            the Context is created or devices will not be found.
 
-protected:
+            Re-enumeration support is pending.
+        */
+        PlatformContext();
+        virtual ~PlatformContext();
 
-    /** retrieve all the frame information and write it to the platformDeviceInfo object */
-    bool enumerateFrameInfo(IMoniker *moniker, platformDeviceInfo *info);
+    protected:
 
-    /** Enumerate DirectShow capture devices and put their 
-        information into the m_devices array 
-        
-        Implement this function in a platform-dependent
-        derived class.
-    */
-    virtual bool enumerateDevices();
+        /** retrieve all the frame information and write it to the platformDeviceInfo object */
+        bool enumerateFrameInfo(IMoniker *moniker, platformDeviceInfo *info);
 
-    /** Convert a wide character string to an UTF-8 string 
-        
-        Implement this function in a platform-dependent
-        derived class.    
-    */
-    virtual std::string wstringToString(const std::wstring &wstr);
+        /** Enumerate DirectShow capture devices and put their
+            information into the m_devices array
 
-    /** Convert a wide charater string to an UTF-8 string
-        
-        Implement this function in a platform-dependent
-        derived class.    
-    */
-    virtual std::string wcharPtrToString(const wchar_t *str);
+            Implement this function in a platform-dependent
+            derived class.
+        */
+        virtual bool enumerateDevices();
 
-};
+        /** Convert a wide character string to an UTF-8 string
 
+            Implement this function in a platform-dependent
+            derived class.
+        */
+        virtual std::string wstringToString(const std::wstring &wstr);
+
+        /** Convert a wide charater string to an UTF-8 string
+
+            Implement this function in a platform-dependent
+            derived class.
+        */
+        virtual std::string wcharPtrToString(const wchar_t *str);
+
+    };
+}
 #endif

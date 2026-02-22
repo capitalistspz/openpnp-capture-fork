@@ -32,25 +32,28 @@
 #include "logging.h"
 #include "version.h"
 
-// Define a PlatformContext factory call 
+// Define a PlatformContext factory call
 // to separate platform dependent and independent
 // code.
 //
 // This function must be implemented in platformcontext.cpp
-Context* createPlatformContext();
-
-
-DLLPUBLIC CapContext Cap_createContext()
+namespace openpnp_capture
 {
-    Context *ctx = createPlatformContext();
+    Context* createPlatformContext();
+}
+
+
+OPENPNP_CAPTURE_API CapContext Cap_createContext()
+{
+    openpnp_capture::Context *ctx = openpnp_capture::createPlatformContext();
     return ctx;
 }
 
-DLLPUBLIC CapResult Cap_releaseContext(CapContext ctx)
+OPENPNP_CAPTURE_API CapResult Cap_releaseContext(CapContext ctx)
 {
     if (ctx != 0)
     {
-        delete (Context*)ctx;
+        delete (openpnp_capture::Context*)ctx;
         return CAPRESULT_OK;
     }
 
@@ -58,47 +61,47 @@ DLLPUBLIC CapResult Cap_releaseContext(CapContext ctx)
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC uint32_t Cap_getDeviceCount(CapContext ctx)
+OPENPNP_CAPTURE_API uint32_t Cap_getDeviceCount(CapContext ctx)
 {
     if (ctx != 0)
     {
-        return reinterpret_cast<Context*>(ctx)->getDeviceCount();
+        return reinterpret_cast<openpnp_capture::Context*>(ctx)->getDeviceCount();
     }
     return 0;
 }
 
-DLLPUBLIC const char* Cap_getDeviceName(CapContext ctx, CapDeviceID id)
+OPENPNP_CAPTURE_API const char* Cap_getDeviceName(CapContext ctx, CapDeviceID id)
 {
     if (ctx != 0)
     {
-        return reinterpret_cast<Context*>(ctx)->getDeviceName(id);
+        return reinterpret_cast<openpnp_capture::Context*>(ctx)->getDeviceName(id);
     }
     return 0;
 }
 
-DLLPUBLIC const char* Cap_getDeviceUniqueID(CapContext ctx, CapDeviceID id)
+OPENPNP_CAPTURE_API const char* Cap_getDeviceUniqueID(CapContext ctx, CapDeviceID id)
 {
     if (ctx != 0)
     {
-        return reinterpret_cast<Context*>(ctx)->getDeviceUniqueID(id);
+        return reinterpret_cast<openpnp_capture::Context*>(ctx)->getDeviceUniqueID(id);
     }
     return 0;    
 }
 
-DLLPUBLIC int32_t Cap_getNumFormats(CapContext ctx, CapDeviceID id)
+OPENPNP_CAPTURE_API int32_t Cap_getNumFormats(CapContext ctx, CapDeviceID id)
 {
     if (ctx != 0)
     {
-        return reinterpret_cast<Context*>(ctx)->getNumFormats(id);
+        return reinterpret_cast<openpnp_capture::Context*>(ctx)->getNumFormats(id);
     }
     return -1;
 }
 
-DLLPUBLIC CapResult Cap_getFormatInfo(CapContext ctx, CapDeviceID index, CapFormatID id, CapFormatInfo *info)
+OPENPNP_CAPTURE_API CapResult Cap_getFormatInfo(CapContext ctx, CapDeviceID index, CapFormatID id, CapFormatInfo *info)
 {
     if (ctx != 0)
     {
-        if (reinterpret_cast<Context*>(ctx)->getFormatInfo(index, id, info))
+        if (reinterpret_cast<openpnp_capture::Context*>(ctx)->getFormatInfo(index, id, info))
         {
             return CAPRESULT_OK;
         }
@@ -106,66 +109,66 @@ DLLPUBLIC CapResult Cap_getFormatInfo(CapContext ctx, CapDeviceID index, CapForm
     return CAPRESULT_ERR;    
 }
 
-DLLPUBLIC void Cap_setLogLevel(uint32_t level)
+OPENPNP_CAPTURE_API void Cap_setLogLevel(uint32_t level)
 {
-    setLogLevel(level);
+    openpnp_capture::setLogLevel(level);
 }
 
-DLLPUBLIC CapStream Cap_openStream(CapContext ctx, CapDeviceID index, CapFormatID formatID)
+OPENPNP_CAPTURE_API CapStream Cap_openStream(CapContext ctx, CapDeviceID index, CapFormatID formatID)
 {
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         return c->openStream(index, formatID);
     }
     return -1;
 }
 
-DLLPUBLIC CapResult Cap_closeStream(CapContext ctx, CapStream stream)
+OPENPNP_CAPTURE_API CapResult Cap_closeStream(CapContext ctx, CapStream stream)
 {
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         c->closeStream(stream);
     }
     return CAPRESULT_OK;
 }
 
-DLLPUBLIC uint32_t Cap_isOpenStream(CapContext ctx, CapStream stream)
+OPENPNP_CAPTURE_API uint32_t Cap_isOpenStream(CapContext ctx, CapStream stream)
 {
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         return c->isOpenStream(stream);
     }
     return 0;   // closed stream
 }
 
-DLLPUBLIC CapResult Cap_captureFrame(CapContext ctx, CapStream stream, void *RGBbufferPtr, uint32_t RGBbufferBytes)
+OPENPNP_CAPTURE_API CapResult Cap_captureFrame(CapContext ctx, CapStream stream, void *RGBbufferPtr, uint32_t RGBbufferBytes)
 {
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         return c->captureFrame(stream, (uint8_t*)RGBbufferPtr, RGBbufferBytes) ? CAPRESULT_OK : CAPRESULT_ERR;
     }    
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC uint32_t Cap_hasNewFrame(CapContext ctx, CapStream stream)
+OPENPNP_CAPTURE_API uint32_t Cap_hasNewFrame(CapContext ctx, CapStream stream)
 {
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         return c->hasNewFrame(stream) ? 1: 0;
     }    
     return 0;
 }
 
-DLLPUBLIC uint32_t Cap_getStreamFrameCount(CapContext ctx, CapStream stream)
+OPENPNP_CAPTURE_API uint32_t Cap_getStreamFrameCount(CapContext ctx, CapStream stream)
 {
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         return c->getStreamFrameCount(stream);
     }    
     return 0;    
@@ -175,7 +178,7 @@ DLLPUBLIC uint32_t Cap_getStreamFrameCount(CapContext ctx, CapStream stream)
 
 // not used for now..
 
-DLLPUBLIC CapResult Cap_setFrameRate(CapContext ctx, CapStream stream, uint32_t fps)
+OPENPNP_CAPTURE_API CapResult Cap_setFrameRate(CapContext ctx, CapStream stream, uint32_t fps)
 {
     if (ctx != 0)
     {
@@ -190,12 +193,12 @@ DLLPUBLIC CapResult Cap_setFrameRate(CapContext ctx, CapStream stream, uint32_t 
 }
 #endif
 
-DLLPUBLIC CapResult Cap_getPropertyLimits(CapContext ctx, CapStream stream, CapPropertyID propID, 
+OPENPNP_CAPTURE_API CapResult Cap_getPropertyLimits(CapContext ctx, CapStream stream, CapPropertyID propID,
     int32_t *min, int32_t *max, int32_t *dValue)
 {
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         if (!c->getStreamPropertyLimits(stream, propID, min, max, dValue))
         {
             return CAPRESULT_PROPERTYNOTSUPPORTED;
@@ -205,11 +208,11 @@ DLLPUBLIC CapResult Cap_getPropertyLimits(CapContext ctx, CapStream stream, CapP
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC CapResult Cap_setProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t value)
+OPENPNP_CAPTURE_API CapResult Cap_setProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t value)
 {
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         if (!c->setStreamProperty(stream, propID, value))
         {
             return CAPRESULT_PROPERTYNOTSUPPORTED;
@@ -219,11 +222,11 @@ DLLPUBLIC CapResult Cap_setProperty(CapContext ctx, CapStream stream, CapPropert
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC CapResult Cap_setAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t bOnOff)
+OPENPNP_CAPTURE_API CapResult Cap_setAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t bOnOff)
 {
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         if (!c->setStreamAutoProperty(stream, propID, (bOnOff==1)))
         {
             return CAPRESULT_PROPERTYNOTSUPPORTED;
@@ -233,7 +236,7 @@ DLLPUBLIC CapResult Cap_setAutoProperty(CapContext ctx, CapStream stream, CapPro
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC CapResult Cap_getProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t *outValue)
+OPENPNP_CAPTURE_API CapResult Cap_getProperty(CapContext ctx, CapStream stream, CapPropertyID propID, int32_t *outValue)
 {
     if (outValue == NULL)
     {
@@ -242,7 +245,7 @@ DLLPUBLIC CapResult Cap_getProperty(CapContext ctx, CapStream stream, CapPropert
 
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         int32_t value = 0;
         if (!c->getStreamProperty(stream, propID, value))
         {
@@ -254,7 +257,7 @@ DLLPUBLIC CapResult Cap_getProperty(CapContext ctx, CapStream stream, CapPropert
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t *outValue)
+OPENPNP_CAPTURE_API CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPropertyID propID, uint32_t *outValue)
 {
     if (outValue == NULL)
     {
@@ -263,7 +266,7 @@ DLLPUBLIC CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPro
 
     if (ctx != 0)
     {
-        Context *c = reinterpret_cast<Context*>(ctx);
+        openpnp_capture::Context *c = reinterpret_cast<openpnp_capture::Context*>(ctx);
         bool enable = false;
         if (!c->getStreamAutoProperty(stream, propID, enable))
         {
@@ -275,26 +278,26 @@ DLLPUBLIC CapResult Cap_getAutoProperty(CapContext ctx, CapStream stream, CapPro
     return CAPRESULT_ERR;
 }
 
-DLLPUBLIC void Cap_installCustomLogFunction(CapCustomLogFunc logFunc)
+OPENPNP_CAPTURE_API void Cap_installCustomLogFunction(CapCustomLogFunc logFunc)
 {
-    installCustomLogFunction(logFunc);
+    openpnp_capture::installCustomLogFunction(logFunc);
 }
 
-DLLPUBLIC const char* Cap_getLibraryVersion()
+OPENPNP_CAPTURE_API const char* Cap_getLibraryVersion()
 {
-    #ifndef __LIBVER__
-    #define __LIBVER__ "VERSION UNKNOWN"
+    #ifndef OPENPNP_CAPTURE_LIBVER
+    #define OPENPNP_CAPTURE_LIBVER "VERSION UNKNOWN"
     #endif 
     
-    #ifndef __PLATFORM__
-    #define __PLATFORM__ "PLATFORM UNKNONW"
+    #ifndef OPENPNP_CAPTURE_PLATFORM
+    #define OPENPNP_CAPTURE_PLATFORM "PLATFORM UNKNONW"
     #endif
 
-    #ifndef __BUILDTYPE__
-    #define __BUILDTYPE__ "BUILDTYPE UNKNOWN"
+    #ifndef OPENPNP_CAPTURE_BUILDTYPE
+    #define OPENPNP_CAPTURE_BUILDTYPE "BUILDTYPE UNKNOWN"
     #endif
 
-    static const char versionString[] = __PLATFORM__ " " __BUILDTYPE__ " " __LIBVER__ " " __DATE__ " ";
+    static const char versionString[] = OPENPNP_CAPTURE_PLATFORM " " OPENPNP_CAPTURE_BUILDTYPE " " OPENPNP_CAPTURE_LIBVER " " __DATE__ " ";
 
     return versionString;
 }

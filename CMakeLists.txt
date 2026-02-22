@@ -71,9 +71,9 @@ endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 
 # check the build type and set the build type string
 if(CMAKE_BUILD_TYPE MATCHES Release)
-    add_definitions(-D__BUILDTYPE__="release")
+    add_definitions(-DOPENPNP_CAPTURE_BUILDTYPE="release")
 else(CMAKE_BUILD_TYPE MATCHES Release)
-    add_definitions(-D__BUILDTYPE__="debug")
+    add_definitions(-DOPENPNP_CAPTURE_BUILDTYPE="debug")
 endif(CMAKE_BUILD_TYPE MATCHES Release)
 
 # create our capture library
@@ -112,7 +112,7 @@ IF (WIN32)
     endif()
 
     # set the platform identification string
-    add_definitions(-D__PLATFORM__="Win ${COMPILERBITS}")
+    add_definitions(-DOPENPNP_CAPTURE_PLATFORM="Win ${COMPILERBITS}")
     
     # remove annoying 'unsafe' function warnings
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -127,7 +127,7 @@ IF (WIN32)
 
 ELSEIF(APPLE)
     # set the platform identification string
-    add_definitions(-D__PLATFORM__="OSX ${COMPILERBITS}")
+    add_definitions(-DOPENPNP_CAPTURE_PLATFORM="OSX ${COMPILERBITS}")
 
     target_sources(openpnp-capture PRIVATE mac/platformcontext.mm
                                            mac/platformstream.mm
@@ -151,7 +151,7 @@ ELSEIF(UNIX)
     include(GNUInstallDirs)
 
     # set the platform identification string
-    add_definitions(-D__PLATFORM__="Linux ${COMPILERBITS}")
+    add_definitions(-DOPENPNP_CAPTURE_PLATFORM="Linux ${COMPILERBITS}")
 
     target_sources(openpnp-capture PRIVATE linux/platformcontext.cpp
                                            linux/platformstream.cpp

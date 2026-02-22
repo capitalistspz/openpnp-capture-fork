@@ -34,29 +34,31 @@
 #include <stdint.h>
 #include <stdlib.h> // size_t
 
-class MJPEGHelper
+namespace openpnp_capture
 {
-public:
-    MJPEGHelper()
+    class MJPEGHelper
     {
-        m_decompressHandle = tjInitDecompress();
-    }
+    public:
+        MJPEGHelper()
+        {
+            m_decompressHandle = tjInitDecompress();
+        }
 
-    virtual ~MJPEGHelper()
-    {
-        tjDestroy(m_decompressHandle);
-    }
+        virtual ~MJPEGHelper()
+        {
+            tjDestroy(m_decompressHandle);
+        }
 
-    /** Decompress a JPEG contained in the buffer. 
-        The width and height of the output buffer are for
-        sanity checking only. If the JPEG does not match
-        the buffer size, the function will return false.
-    */
-    bool decompressFrame(const uint8_t *inBuffer, size_t inBytes, 
-        uint8_t *outBuffer, uint32_t outBufWidth, uint32_t outButHeight);
+        /** Decompress a JPEG contained in the buffer.
+            The width and height of the output buffer are for
+            sanity checking only. If the JPEG does not match
+            the buffer size, the function will return false.
+        */
+        bool decompressFrame(const uint8_t *inBuffer, size_t inBytes,
+            uint8_t *outBuffer, uint32_t outBufWidth, uint32_t outButHeight);
 
-protected:
-    tjhandle m_decompressHandle;  ///< decompressor handle
-};
-
+    protected:
+        tjhandle m_decompressHandle;  ///< decompressor handle
+    };
+}
 #endif

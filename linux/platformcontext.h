@@ -44,32 +44,34 @@
 #include "platformdeviceinfo.h"
 #include "../common/context.h"
 
-/** context base class keeps track of all the platform independent
-    objects and information */
-
-class PlatformContext : public Context
+namespace openpnp_capture
 {
-public:
-    /** Create a context for the library.
-        Device enumeration is perform in the constructor,
-        so all devices must be present in the system when
-        the Context is created or devices will not be found.
+    /** context base class keeps track of all the platform independent
+        objects and information */
 
-        Re-enumeration support is pending.
-    */
-    PlatformContext();
-    virtual ~PlatformContext();
+    class PlatformContext : public Context
+    {
+    public:
+        /** Create a context for the library.
+            Device enumeration is perform in the constructor,
+            so all devices must be present in the system when
+            the Context is created or devices will not be found.
 
-protected:
-    bool queryFrameSize(int fd, uint32_t index, uint32_t pixelformat, uint32_t *width, uint32_t *height);
+            Re-enumeration support is pending.
+        */
+        PlatformContext();
+        virtual ~PlatformContext();
 
-    uint32_t findMaxFrameRate(int fd, uint32_t pixelformat, uint32_t width, uint32_t height);
+    protected:
+        bool queryFrameSize(int fd, uint32_t index, uint32_t pixelformat, uint32_t *width, uint32_t *height);
 
-    /** Enumerate V4L capture devices and put their 
-        information into the m_devices array 
-    */
-    virtual bool enumerateDevices();
+        uint32_t findMaxFrameRate(int fd, uint32_t pixelformat, uint32_t width, uint32_t height);
 
-};
+        /** Enumerate V4L capture devices and put their
+            information into the m_devices array
+        */
+        virtual bool enumerateDevices();
 
+    };
+}
 #endif

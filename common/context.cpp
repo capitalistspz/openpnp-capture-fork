@@ -30,339 +30,342 @@
 #include "logging.h"
 #include "stream.h"
 
-Context::Context() :
-    m_streamCounter(0)
+namespace openpnp_capture
 {
-    //NOTE: derived platform dependent class must enumerate
-    //      the devices here and place them in m_devices.
-}
-
-Context::~Context()
-{
-    // delete stream objects
-    auto iter = m_streams.begin();
-    while(iter != m_streams.end())
+    Context::Context() :
+        m_streamCounter(0)
     {
-        delete iter->second;
-        iter++;
+        //NOTE: derived platform dependent class must enumerate
+        //      the devices here and place them in m_devices.
     }
 
-    //delete capture devices
-    auto iter2 = m_devices.begin();
-    while(iter2 != m_devices.end())
+    Context::~Context()
     {
-        delete *iter2;
-        iter2++;
-    }
-    LOG(LOG_DEBUG, "Context destroyed\n");
-}
+        // delete stream objects
+        auto iter = m_streams.begin();
+        while(iter != m_streams.end())
+        {
+            delete iter->second;
+            iter++;
+        }
 
-const char* Context::getDeviceName(CapDeviceID id) const
-{
-    if (id >= m_devices.size())
-    {
-        LOG(LOG_ERR,"Device with ID %d not found", id);
-        return NULL; // no such device ID!
-    }
-    if (m_devices[id] == nullptr)
-    {
-        LOG(LOG_ERR,"Internal device pointer is NULL");
-        return NULL; // device pointer is NULL!
-    }
-    return m_devices[id]->m_name.c_str();
-}
-
-const char* Context::getDeviceUniqueID(CapDeviceID id) const
-{
-    if (id >= m_devices.size())
-    {
-        LOG(LOG_ERR,"Device with ID %d not found", id);
-        return NULL; // no such device ID!
-    }
-    if (m_devices[id] == nullptr)
-    {
-        LOG(LOG_ERR,"Internal device pointer is NULL");
-        return NULL; // device pointer is NULL!
-    }
-    return m_devices[id]->m_uniqueID.c_str();    
-}
-
-uint32_t Context::getDeviceCount() const
-{
-    return static_cast<uint32_t>(m_devices.size());
-}
-
-
-int32_t Context::getNumFormats(CapDeviceID index) const
-{
-    if (index >= m_devices.size())
-    {
-        LOG(LOG_ERR,"Device with ID %d not found", index);
-        return -1; // no such device ID!
-    }
-    if (m_devices[index] == nullptr)
-    {
-        LOG(LOG_ERR,"Internal device pointer is NULL");
-        return -1; // device pointer is NULL!
-    }
-    return static_cast<int32_t>(m_devices[index]->m_formats.size());
-}
-
-
-bool Context::getFormatInfo(CapDeviceID index, CapFormatID formatID, CapFormatInfo *info) const
-{
-    if (index >= m_devices.size())
-    {
-        LOG(LOG_ERR,"Device with ID %d not found", index);
-        return false; // no such device ID!
-    }
-    if (m_devices[index] == nullptr)
-    {
-        LOG(LOG_ERR,"Internal device pointer is NULL");
-        return false; // device pointer is NULL!
-    }
-    if (formatID < m_devices[index]->m_formats.size())
-    {
-        *info = m_devices[index]->m_formats[formatID];
-    }
-    else
-    {
-        LOG(LOG_ERR,"Invalid format ID (got %d but max ID is %d)\n", formatID, m_devices[index]->m_formats.size());
-        return false; // invalid format ID 
-    }
-    return true;
-}
-
-int32_t Context::openStream(CapDeviceID id, CapFormatID formatID)
-{
-    deviceInfo *device = nullptr;
-
-    if (m_devices.size() > id)
-    {
-        device = m_devices[id];
-    }
-    else
-    {
-        LOG(LOG_ERR, "openStream: No devices found\n");
-        return -1;
+        //delete capture devices
+        auto iter2 = m_devices.begin();
+        while(iter2 != m_devices.end())
+        {
+            delete *iter2;
+            iter2++;
+        }
+        LOG(LOG_DEBUG, "Context destroyed\n");
     }
 
-    // lookup desired format
-    if (formatID >= device->m_formats.size())
+    const char* Context::getDeviceName(CapDeviceID id) const
     {
-        LOG(LOG_ERR, "openStream: Requested format index out of range\n");
-        return -1;        
+        if (id >= m_devices.size())
+        {
+            LOG(LOG_ERR,"Device with ID %d not found", id);
+            return NULL; // no such device ID!
+        }
+        if (m_devices[id] == nullptr)
+        {
+            LOG(LOG_ERR,"Internal device pointer is NULL");
+            return NULL; // device pointer is NULL!
+        }
+        return m_devices[id]->m_name.c_str();
     }
 
-    Stream *s = createPlatformStream();
-
-    if (!s->open(this, device, device->m_formats[formatID].width,
-                 device->m_formats[formatID].height,
-                 device->m_formats[formatID].fourcc,
-                 device->m_formats[formatID].fps))
+    const char* Context::getDeviceUniqueID(CapDeviceID id) const
     {
-        LOG(LOG_ERR, "Could not open stream for device %s\n", device->m_name.c_str());
-        return -1;
-    }
-    else
-    {
-        LOG(LOG_DEBUG, "FOURCC = %s\n", fourCCToString(s->getFOURCC()).c_str());
-    }
-
-    int32_t streamID = storeStream(s);
-    return streamID;
-}
-
-bool Context::closeStream(int32_t streamID)
-{
-    if (streamID < 0)
-    {
-        LOG(LOG_ERR, "closeStream was called with a negative stream ID\n");
-        return false;
+        if (id >= m_devices.size())
+        {
+            LOG(LOG_ERR,"Device with ID %d not found", id);
+            return NULL; // no such device ID!
+        }
+        if (m_devices[id] == nullptr)
+        {
+            LOG(LOG_ERR,"Internal device pointer is NULL");
+            return NULL; // device pointer is NULL!
+        }
+        return m_devices[id]->m_uniqueID.c_str();
     }
 
-    // remove and delete stream from collection
-    if (!removeStream(streamID))
+    uint32_t Context::getDeviceCount() const
     {
-        LOG(LOG_ERR, "could not remove stream with ID %d from m_streams.\n", streamID);
-    }
-    
-    return true;
-}
-
-uint32_t Context::isOpenStream(int32_t streamID)
-{
-    if (streamID < 0)
-    {
-        LOG(LOG_ERR, "isOpenStream was called with a negative stream ID\n");
-        return 0;
-    }    
-
-    if (m_streams.find(streamID) == m_streams.cend())
-    {
-        LOG(LOG_ERR, "isOpenStream was called with an invalid stream ID\n");
-        return 0;        
+        return static_cast<uint32_t>(m_devices.size());
     }
 
-    return m_streams[streamID]->isOpen() ? 1 : 0;
-}
 
-bool Context::captureFrame(int32_t streamID, uint8_t *RGBbufferPtr, size_t RGBbufferBytes)
-{
-    if (streamID < 0)
+    int32_t Context::getNumFormats(CapDeviceID index) const
     {
-        LOG(LOG_ERR, "captureFrame was called with a negative stream ID\n");
-        return false;
-    }    
-
-    Stream *stream = m_streams[streamID];
-    if (stream == nullptr)
-    {
-        LOG(LOG_ERR, "hasNewFrame was called with an unknown stream ID\n");
-        return false; 
-    }
-    
-    return m_streams[streamID]->captureFrame(RGBbufferPtr, static_cast<uint32_t>(RGBbufferBytes));
-}
-
-bool Context::hasNewFrame(int32_t streamID)
-{
-    if (streamID < 0)
-    {
-        LOG(LOG_ERR, "hasNewFrame was called with a negative stream ID\n");
-        return false;
-    }    
-
-    Stream *stream = m_streams[streamID];
-    if (stream == nullptr)
-    {
-        LOG(LOG_ERR, "hasNewFrame was called with an unknown stream ID\n");
-        return false; 
+        if (index >= m_devices.size())
+        {
+            LOG(LOG_ERR,"Device with ID %d not found", index);
+            return -1; // no such device ID!
+        }
+        if (m_devices[index] == nullptr)
+        {
+            LOG(LOG_ERR,"Internal device pointer is NULL");
+            return -1; // device pointer is NULL!
+        }
+        return static_cast<int32_t>(m_devices[index]->m_formats.size());
     }
 
-    return stream->hasNewFrame();
-}
 
-uint32_t Context::getStreamFrameCount(int32_t streamID)
-{
-    if (streamID < 0)
+    bool Context::getFormatInfo(CapDeviceID index, CapFormatID formatID, CapFormatInfo *info) const
     {
-        LOG(LOG_ERR, "getStreamFrameCount was called with a negative stream ID\n");
-        return 0;
-    }    
-
-    Stream *stream = m_streams[streamID];
-    if (stream == nullptr)
-    {
-        LOG(LOG_ERR, "hasNewFrame was called with an unknown stream ID\n");
-        return false; 
-    }
-
-    return stream->getFrameCount();
-}
-
-bool Context::setStreamFrameRate(int32_t streamID, uint32_t fps)
-{
-    if (streamID < 0)
-    {
-        LOG(LOG_ERR, "setStreamFrameRate was called with a negative stream ID\n");
-        return 0;
-    }    
-
-    Stream *stream = m_streams[streamID];
-    if (stream == nullptr)
-    {
-        LOG(LOG_ERR, "setStreamFrameRate was called with an unknown stream ID\n");
-        return false; 
-    }
-
-    return stream->setFrameRate(fps);
-}
-
-#if 0
-/** Lookup a stream by ID and return a pointer
-    to it if it exists. If it doesnt exist, 
-    return NULL */
-Stream* Context::lookupStreamByID(int32_t ID)
-{
-    auto it = m_streams.find(ID);
-    if (it != m_streams.end())
-    {
-        return it->second;
-    }
-    return nullptr;
-}
-#endif
-
-/** Store a stream pointer in the m_streams map
-    and return its unique ID */
-int32_t Context::storeStream(Stream *stream)
-{   
-    int32_t ID = m_streamCounter++; 
-    m_streams.insert(std::pair<int32_t,Stream*>(ID, stream));    
-    return ID;
-}
-
-/** Remove a stream from the m_streams map.
-    Return true if this was successful */
-bool Context::removeStream(int32_t ID)
-{
-    auto it = m_streams.find(ID);
-    if (it != m_streams.end())
-    {
-        delete it->second;
-        m_streams.erase(it);
+        if (index >= m_devices.size())
+        {
+            LOG(LOG_ERR,"Device with ID %d not found", index);
+            return false; // no such device ID!
+        }
+        if (m_devices[index] == nullptr)
+        {
+            LOG(LOG_ERR,"Internal device pointer is NULL");
+            return false; // device pointer is NULL!
+        }
+        if (formatID < m_devices[index]->m_formats.size())
+        {
+            *info = m_devices[index]->m_formats[formatID];
+        }
+        else
+        {
+            LOG(LOG_ERR,"Invalid format ID (got %d but max ID is %d)\n", formatID, m_devices[index]->m_formats.size());
+            return false; // invalid format ID
+        }
         return true;
     }
-    return false;
-}
 
-bool Context::getStreamPropertyLimits(int32_t streamID, uint32_t propertyID, 
-        int32_t *min, int32_t *max, int32_t *dValue)
-{
-    Stream* stream = m_streams[streamID];
-    if (stream == nullptr) return false;
-    return stream->getPropertyLimits(propertyID, min, max, dValue);
-}
-
-bool Context::setStreamAutoProperty(int32_t streamID, uint32_t propertyID, bool enable)
-{
-    Stream* stream = m_streams[streamID];
-    if (stream == nullptr) return false;
-    return stream->setAutoProperty(propertyID, enable);
-}
-
-bool Context::setStreamProperty(int32_t streamID, uint32_t propertyID, int32_t value)
-{
-    Stream* stream = m_streams[streamID];
-    if (stream == nullptr) return false;
-    return stream->setProperty(propertyID, value);
-}
-
-
-bool Context::getStreamProperty(int32_t streamID, uint32_t propertyID, int32_t &outValue)
-{
-    Stream* stream = m_streams[streamID];
-    if (stream == nullptr) return false;
-    return stream->getProperty(propertyID, outValue);
-}
-
-
-bool Context::getStreamAutoProperty(int32_t streamID, uint32_t propertyID, bool &enable)
-{
-    Stream* stream = m_streams[streamID];
-    if (stream == nullptr) return false;
-    return stream->getAutoProperty(propertyID, enable);
-}
-
-/** convert a FOURCC uint32_t to human readable form */
-std::string fourCCToString(uint32_t fourcc)
-{
-    std::string v;
-    for(uint32_t i=0; i<4; i++)
+    int32_t Context::openStream(CapDeviceID id, CapFormatID formatID)
     {
-        v += static_cast<char>(fourcc & 0xFF);
-        fourcc >>= 8;
+        deviceInfo *device = nullptr;
+
+        if (m_devices.size() > id)
+        {
+            device = m_devices[id];
+        }
+        else
+        {
+            LOG(LOG_ERR, "openStream: No devices found\n");
+            return -1;
+        }
+
+        // lookup desired format
+        if (formatID >= device->m_formats.size())
+        {
+            LOG(LOG_ERR, "openStream: Requested format index out of range\n");
+            return -1;
+        }
+
+        Stream *s = createPlatformStream();
+
+        if (!s->open(this, device, device->m_formats[formatID].width,
+                     device->m_formats[formatID].height,
+                     device->m_formats[formatID].fourcc,
+                     device->m_formats[formatID].fps))
+        {
+            LOG(LOG_ERR, "Could not open stream for device %s\n", device->m_name.c_str());
+            return -1;
+        }
+        else
+        {
+            LOG(LOG_DEBUG, "FOURCC = %s\n", fourCCToString(s->getFOURCC()).c_str());
+        }
+
+        int32_t streamID = storeStream(s);
+        return streamID;
     }
-    return v;
-};
+
+    bool Context::closeStream(int32_t streamID)
+    {
+        if (streamID < 0)
+        {
+            LOG(LOG_ERR, "closeStream was called with a negative stream ID\n");
+            return false;
+        }
+
+        // remove and delete stream from collection
+        if (!removeStream(streamID))
+        {
+            LOG(LOG_ERR, "could not remove stream with ID %d from m_streams.\n", streamID);
+        }
+
+        return true;
+    }
+
+    uint32_t Context::isOpenStream(int32_t streamID)
+    {
+        if (streamID < 0)
+        {
+            LOG(LOG_ERR, "isOpenStream was called with a negative stream ID\n");
+            return 0;
+        }
+
+        if (m_streams.find(streamID) == m_streams.cend())
+        {
+            LOG(LOG_ERR, "isOpenStream was called with an invalid stream ID\n");
+            return 0;
+        }
+
+        return m_streams[streamID]->isOpen() ? 1 : 0;
+    }
+
+    bool Context::captureFrame(int32_t streamID, uint8_t *RGBbufferPtr, size_t RGBbufferBytes)
+    {
+        if (streamID < 0)
+        {
+            LOG(LOG_ERR, "captureFrame was called with a negative stream ID\n");
+            return false;
+        }
+
+        Stream *stream = m_streams[streamID];
+        if (stream == nullptr)
+        {
+            LOG(LOG_ERR, "hasNewFrame was called with an unknown stream ID\n");
+            return false;
+        }
+
+        return m_streams[streamID]->captureFrame(RGBbufferPtr, static_cast<uint32_t>(RGBbufferBytes));
+    }
+
+    bool Context::hasNewFrame(int32_t streamID)
+    {
+        if (streamID < 0)
+        {
+            LOG(LOG_ERR, "hasNewFrame was called with a negative stream ID\n");
+            return false;
+        }
+
+        Stream *stream = m_streams[streamID];
+        if (stream == nullptr)
+        {
+            LOG(LOG_ERR, "hasNewFrame was called with an unknown stream ID\n");
+            return false;
+        }
+
+        return stream->hasNewFrame();
+    }
+
+    uint32_t Context::getStreamFrameCount(int32_t streamID)
+    {
+        if (streamID < 0)
+        {
+            LOG(LOG_ERR, "getStreamFrameCount was called with a negative stream ID\n");
+            return 0;
+        }
+
+        Stream *stream = m_streams[streamID];
+        if (stream == nullptr)
+        {
+            LOG(LOG_ERR, "hasNewFrame was called with an unknown stream ID\n");
+            return false;
+        }
+
+        return stream->getFrameCount();
+    }
+
+    bool Context::setStreamFrameRate(int32_t streamID, uint32_t fps)
+    {
+        if (streamID < 0)
+        {
+            LOG(LOG_ERR, "setStreamFrameRate was called with a negative stream ID\n");
+            return 0;
+        }
+
+        Stream *stream = m_streams[streamID];
+        if (stream == nullptr)
+        {
+            LOG(LOG_ERR, "setStreamFrameRate was called with an unknown stream ID\n");
+            return false;
+        }
+
+        return stream->setFrameRate(fps);
+    }
+
+#if 0
+    /** Lookup a stream by ID and return a pointer
+        to it if it exists. If it doesnt exist,
+        return NULL */
+    Stream* Context::lookupStreamByID(int32_t ID)
+    {
+        auto it = m_streams.find(ID);
+        if (it != m_streams.end())
+        {
+            return it->second;
+        }
+        return nullptr;
+    }
+#endif
+
+    /** Store a stream pointer in the m_streams map
+        and return its unique ID */
+    int32_t Context::storeStream(Stream *stream)
+    {
+        int32_t ID = m_streamCounter++;
+        m_streams.insert(std::pair<int32_t,Stream*>(ID, stream));
+        return ID;
+    }
+
+    /** Remove a stream from the m_streams map.
+        Return true if this was successful */
+    bool Context::removeStream(int32_t ID)
+    {
+        auto it = m_streams.find(ID);
+        if (it != m_streams.end())
+        {
+            delete it->second;
+            m_streams.erase(it);
+            return true;
+        }
+        return false;
+    }
+
+    bool Context::getStreamPropertyLimits(int32_t streamID, uint32_t propertyID,
+            int32_t *min, int32_t *max, int32_t *dValue)
+    {
+        Stream* stream = m_streams[streamID];
+        if (stream == nullptr) return false;
+        return stream->getPropertyLimits(propertyID, min, max, dValue);
+    }
+
+    bool Context::setStreamAutoProperty(int32_t streamID, uint32_t propertyID, bool enable)
+    {
+        Stream* stream = m_streams[streamID];
+        if (stream == nullptr) return false;
+        return stream->setAutoProperty(propertyID, enable);
+    }
+
+    bool Context::setStreamProperty(int32_t streamID, uint32_t propertyID, int32_t value)
+    {
+        Stream* stream = m_streams[streamID];
+        if (stream == nullptr) return false;
+        return stream->setProperty(propertyID, value);
+    }
+
+
+    bool Context::getStreamProperty(int32_t streamID, uint32_t propertyID, int32_t &outValue)
+    {
+        Stream* stream = m_streams[streamID];
+        if (stream == nullptr) return false;
+        return stream->getProperty(propertyID, outValue);
+    }
+
+
+    bool Context::getStreamAutoProperty(int32_t streamID, uint32_t propertyID, bool &enable)
+    {
+        Stream* stream = m_streams[streamID];
+        if (stream == nullptr) return false;
+        return stream->getAutoProperty(propertyID, enable);
+    }
+
+    /** convert a FOURCC uint32_t to human readable form */
+    std::string fourCCToString(uint32_t fourcc)
+    {
+        std::string v;
+        for(uint32_t i=0; i<4; i++)
+        {
+            v += static_cast<char>(fourcc & 0xFF);
+            fourcc >>= 8;
+        }
+        return v;
+    };
+}

@@ -84,6 +84,8 @@
 #define UVC_GET_INFO 0x86
 #define UVC_GET_DEF 0x87
 
+namespace openpnp_capture {
+
 // USB descriptor for UVC processing unit
 struct ProcessingUnitDescriptor
 {
@@ -127,7 +129,7 @@ UVCCtrl::UVCCtrl(IOUSBInterfaceInterface190 **controller, uint32_t processingUni
     m_controller(controller)
 {
     //LOG(LOG_VERBOSE,"[BRIGHTNESS] ");
-    //reportCapabilities(PU_BRIGHTNESS_CONTROL, UVC_PROCESSING_UNIT_ID);        
+    //reportCapabilities(PU_BRIGHTNESS_CONTROL, UVC_PROCESSING_UNIT_ID);
 }
 
 UVCCtrl::~UVCCtrl()
@@ -241,7 +243,7 @@ uint32_t UVCCtrl::getProcessingUnitID(IOUSBDeviceInterface** dev)
 
         uint32_t idx  = 0;
         uint8_t  *ptr = (uint8_t*)configDesc;
-        
+
         // Search for VIDEO/CONTROL interface descriptor
         // Class=14, Subclass=1, Protocol=0
         // and find the processing unit, if available..
@@ -264,7 +266,7 @@ uint32_t UVCCtrl::getProcessingUnitID(IOUSBDeviceInterface** dev)
                 case 0x04: // Interface descriptor ID
                     LOG(LOG_VERBOSE,"Interface");
                     iface = (IOUSBInterfaceDescriptor*)&ptr[idx];
-                    if ((iface->bInterfaceClass == 14) && 
+                    if ((iface->bInterfaceClass == 14) &&
                         (iface->bInterfaceSubClass == 1) &&
                         (iface->bInterfaceProtocol == 0))
                     {
@@ -283,7 +285,7 @@ uint32_t UVCCtrl::getProcessingUnitID(IOUSBDeviceInterface** dev)
                     {
                         if (pud->bDescriptorSubtype == 0x05)
                         {
-                            LOG(LOG_VERBOSE,"Processing Unit ID: %d\n", 
+                            LOG(LOG_VERBOSE,"Processing Unit ID: %d\n",
                                 pud->bUnitID);
                             return pud->bUnitID;
                         }
@@ -327,8 +329,8 @@ IOUSBInterfaceInterface190** UVCCtrl::createControlInterface(IOUSBDeviceInterfac
         IOCFPlugInInterface **plugInInterface = NULL;
         SInt32 score;
         kern_return_t kr = IOCreatePlugInInterfaceForService(usbInterface,
-            kIOUSBInterfaceUserClientTypeID, 
-            kIOCFPlugInInterfaceID, 
+            kIOUSBInterfaceUserClientTypeID,
+            kIOCFPlugInInterfaceID,
             &plugInInterface,
             &score);
 
@@ -386,10 +388,10 @@ bool UVCCtrl::sendControlRequest(IOUSBDevRequest req)
     if (kr != kIOReturnSuccess)
     {
         // IOKIT error code
-        #define err_get_system(err) (((err)>>26)&0x3f) 
-        #define err_get_sub(err) (((err)>>14)&0xfff) 
+        #define err_get_system(err) (((err)>>26)&0x3f)
+        #define err_get_sub(err) (((err)>>14)&0xfff)
         #define err_get_code(err) ((err)&0x3fff)
-        
+
         uint32_t code = err_get_code(kr);
         uint32_t sys  = err_get_system(kr);
         uint32_t sub  = err_get_sub(kr);
@@ -410,16 +412,16 @@ bool UVCCtrl::sendControlRequest(IOUSBDevRequest req)
                 break;
             case kIOUSBPipeStalled:
                 //Note: we don't report this as an error as this happens when
-                //      an unsupported or locked property is set.            
+                //      an unsupported or locked property is set.
                 LOG(LOG_VERBOSE,"sendControlRequest: Pipe has stalled, error needs to be cleared\n");
                 break;
             case kIOUSBInterfaceNotFound:
                 LOG(LOG_ERR,"sendControlRequest: USB control interface not found\n");
                 break;
             default:
-                LOG(LOG_ERR, "sendControlRequest ControlRequest failed (KR=sys:sub:code) = %02Xh:%03Xh:%04Xh)!\n", 
+                LOG(LOG_ERR, "sendControlRequest ControlRequest failed (KR=sys:sub:code) = %02Xh:%03Xh:%04Xh)!\n",
                     err_get_system(kr), err_get_sub(kr), err_get_code(kr));
-                break; 
+                break;
         }
 
         if (@available(macOS 12.0, *))
@@ -532,7 +534,7 @@ bool UVCCtrl::getInfo(uint32_t selector, uint32_t unit, uint32_t *data)
     req.wLength  = 1;
     req.wLenDone = 0;
     req.pData = data;
-    return sendControlRequest(req);    
+    return sendControlRequest(req);
 }
 
 bool UVCCtrl::setProperty(uint32_t propID, int32_t value)
@@ -546,7 +548,7 @@ bool UVCCtrl::setProperty(uint32_t propID, int32_t value)
     if (propID < CAPPROPID_LAST)
     {
         uint32_t unit = (propertyInfo[propID].unit == 0) ? UVC_INPUT_TERMINAL_ID : m_pud;
-        ok = setData(propertyInfo[propID].selector, unit, 
+        ok = setData(propertyInfo[propID].selector, unit,
             propertyInfo[propID].length, value);
     }
     return ok;
@@ -572,7 +574,7 @@ bool UVCCtrl::setProperty(uint32_t propID, int32_t value)
         return false;
     }
 
-    return false;   // we should never get here..    
+    return false;   // we should never get here..
 #endif
 
 }
@@ -588,7 +590,7 @@ bool UVCCtrl::getProperty(uint32_t propID, int32_t *value)
     if (propID < CAPPROPID_LAST)
     {
         uint32_t unit = (propertyInfo[propID].unit == 0) ? UVC_INPUT_TERMINAL_ID : m_pud;
-        ok = getData(propertyInfo[propID].selector, unit, 
+        ok = getData(propertyInfo[propID].selector, unit,
             propertyInfo[propID].length, value);
 
         switch(propertyInfo[propID].length)
@@ -620,11 +622,11 @@ bool UVCCtrl::getProperty(uint32_t propID, int32_t *value)
         LOG(LOG_VERBOSE, "UVCCtrl::getProperty (zoom)\n");
         return getData(CT_ZOOM_ABSOLUTE_CONTROL, UVC_INPUT_TERMINAL_ID, 4, value);
     case CAPPROPID_WHITEBALANCE:
-        LOG(LOG_VERBOSE, "UVCCtrl::getProperty (white balance)\n");  
-        return getData(PU_WHITE_BALANCE_TEMPERATURE_CONTROL, UVC_PROCESSING_UNIT_ID, 2, value);       
+        LOG(LOG_VERBOSE, "UVCCtrl::getProperty (white balance)\n");
+        return getData(PU_WHITE_BALANCE_TEMPERATURE_CONTROL, UVC_PROCESSING_UNIT_ID, 2, value);
     case CAPPROPID_GAIN:
         LOG(LOG_VERBOSE, "UVCCtrl::getProperty (gain)\n");
-        return getData(PU_GAIN_CONTROL, UVC_PROCESSING_UNIT_ID, 2, value);    
+        return getData(PU_GAIN_CONTROL, UVC_PROCESSING_UNIT_ID, 2, value);
     default:
         return false;
     }
@@ -690,8 +692,8 @@ bool UVCCtrl::getAutoProperty(uint32_t propID, bool *enabled)
         if (getData(PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL, m_pud, 1, &value))
         {
             LOG(LOG_VERBOSE,"PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL returned %08Xh\n", value & 0xFF);
-            value &= 0xFF; // make 8-bit            
-            *enabled = (value==1) ? true : false; 
+            value &= 0xFF; // make 8-bit
+            *enabled = (value==1) ? true : false;
             return true;
         }
         return false;
@@ -723,7 +725,7 @@ bool UVCCtrl::getPropertyLimits(uint32_t propID, int32_t *emin, int32_t *emax, i
     {
         // get the min data
         uint32_t unit = (propertyInfo[propID].unit == 0) ? UVC_INPUT_TERMINAL_ID : m_pud;
-        if (!getMinData(propertyInfo[propID].selector, unit, 
+        if (!getMinData(propertyInfo[propID].selector, unit,
             propertyInfo[propID].length, emin))
         {
             LOG(LOG_VERBOSE, "getMinData failed\n");
@@ -731,7 +733,7 @@ bool UVCCtrl::getPropertyLimits(uint32_t propID, int32_t *emin, int32_t *emax, i
         }
 
         // get the max data
-        if (!getMaxData(propertyInfo[propID].selector, unit, 
+        if (!getMaxData(propertyInfo[propID].selector, unit,
             propertyInfo[propID].length, emax))
         {
             LOG(LOG_VERBOSE, "getMaxData failed\n");
@@ -800,4 +802,5 @@ void UVCCtrl::reportCapabilities(uint32_t selector, uint32_t unit)
         LOG(LOG_VERBOSE,"DISCOMMIT");
     }
     LOG(LOG_VERBOSE,"\n");
+}
 }

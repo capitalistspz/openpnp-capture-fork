@@ -41,158 +41,159 @@
 #include "../common/stream.h"
 #include "samplegrabber.h"
 
-
-class Context;         // pre-declaration
-class PlatformStream;  // pre-declaration
-
-/** A class to handle callbacks from the video subsystem,
-    A call is made for every frame.
-
-    Note that the callback will be called by the DirectShow thread
-    and should return as quickly as possible to avoid interference
-    with the capturing process.
-*/
-class StreamCallbackHandler : public ISampleGrabberCB
+namespace openpnp_capture
 {
-public:
-    StreamCallbackHandler(PlatformStream *stream) : m_stream(stream)
-    {
-        m_callbackCounter = 0;
-    }
+    class Context;         // pre-declaration
+    class PlatformStream;  // pre-declaration
 
-    ~StreamCallbackHandler()
-    {
-        LOG(LOG_INFO, "Callback counter = %d\n", m_callbackCounter);
-    }
+    /** A class to handle callbacks from the video subsystem,
+        A call is made for every frame.
 
-    /** callback handler used in this library */
-    virtual HRESULT __stdcall SampleCB(double time, IMediaSample* sample) override;
-
-    /** alternate callback handler (not used) */
-    virtual HRESULT __stdcall BufferCB(double time, BYTE* buffer, long len) override
+        Note that the callback will be called by the DirectShow thread
+        and should return as quickly as possible to avoid interference
+        with the capturing process.
+    */
+    class StreamCallbackHandler : public ISampleGrabberCB
     {
-        //m_callbackCounter++;
-        return S_OK;
-    }
-
-    /** function implementation required by ISampleGrabberCB base class */
-    virtual HRESULT __stdcall QueryInterface( REFIID iid, LPVOID *ppv )
-    {
-        if( iid == IID_ISampleGrabberCB || iid == IID_IUnknown )
+    public:
+        StreamCallbackHandler(PlatformStream *stream) : m_stream(stream)
         {
-            *ppv = (void *) static_cast<ISampleGrabberCB*>( this );
+            m_callbackCounter = 0;
+        }
+
+        ~StreamCallbackHandler()
+        {
+            LOG(LOG_INFO, "Callback counter = %d\n", m_callbackCounter);
+        }
+
+        /** callback handler used in this library */
+        virtual HRESULT __stdcall SampleCB(double time, IMediaSample* sample) override;
+
+        /** alternate callback handler (not used) */
+        virtual HRESULT __stdcall BufferCB(double time, BYTE* buffer, long len) override
+        {
+            //m_callbackCounter++;
             return S_OK;
         }
-        return E_NOINTERFACE;
-    }
 
-    /** function implementation required by ISampleGrabberCB base class */
-    virtual ULONG	__stdcall AddRef()
+        /** function implementation required by ISampleGrabberCB base class */
+        virtual HRESULT __stdcall QueryInterface( REFIID iid, LPVOID *ppv )
+        {
+            if( iid == IID_ISampleGrabberCB || iid == IID_IUnknown )
+            {
+                *ppv = (void *) static_cast<ISampleGrabberCB*>( this );
+                return S_OK;
+            }
+            return E_NOINTERFACE;
+        }
+
+        /** function implementation required by ISampleGrabberCB base class */
+        virtual ULONG	__stdcall AddRef()
+        {
+            return 1;
+        }
+
+        /** function implementation required by ISampleGrabberCB base class */
+        virtual ULONG	__stdcall Release()
+        {
+            return 2;
+        }
+
+        uint32_t getCallbackCounter() const
+        {
+            return m_callbackCounter;
+        }
+
+        void reset()
+        {
+            m_callbackCounter = 0;
+        }
+
+
+    private:
+        PlatformStream* m_stream;
+        uint32_t        m_callbackCounter;
+    };
+
+
+    /** The stream class handles the capturing of a single device */
+    class PlatformStream : public Stream
     {
-        return 1;
-    }
+        friend StreamCallbackHandler;
 
-    /** function implementation required by ISampleGrabberCB base class */
-    virtual ULONG	__stdcall Release()
-    {
-        return 2;
-    }
+    public:
+        PlatformStream();
+        virtual ~PlatformStream();
 
-    uint32_t getCallbackCounter() const
-    {
-        return m_callbackCounter;
-    }
+        /** Open a capture stream to a device and request a specific (internal) stream format.
+            When succesfully opened, capturing starts immediately.
+        */
+        virtual bool open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height,
+            uint32_t fourCC, uint32_t fps) override;
 
-    void reset()
-    {
-        m_callbackCounter = 0;
-    }
+        /** Close a capture stream */
+        virtual void close() override;
 
+        /** set the frame rate */
+        virtual bool setFrameRate(uint32_t fps) override;
 
-private:
-    PlatformStream* m_stream;
-    uint32_t        m_callbackCounter;
-};
+        /** Return the FOURCC media type of the stream */
+        virtual uint32_t getFOURCC() override;
 
+        /** get the limits of a camera/stream property (exposure, zoom etc) */
+        virtual bool getPropertyLimits(uint32_t propID, int32_t *min, int32_t *max, int32_t *dValue) override;
 
-/** The stream class handles the capturing of a single device */
-class PlatformStream : public Stream
-{
-friend StreamCallbackHandler;
+        /** set property (exposure, zoom etc) of camera/stream */
+        virtual bool setProperty(uint32_t propID, int32_t value) override;
 
-public:
-    PlatformStream();
-    virtual ~PlatformStream();
+        /** set automatic state of property (exposure, zoom etc) of camera/stream */
+        virtual bool setAutoProperty(uint32_t propID, bool enabled) override;
 
-    /** Open a capture stream to a device and request a specific (internal) stream format. 
-        When succesfully opened, capturing starts immediately.
-    */
-    virtual bool open(Context *owner, deviceInfo *device, uint32_t width, uint32_t height, 
-        uint32_t fourCC, uint32_t fps) override;
+        /** get property (exposure, zoom etc) of camera/stream */
+        virtual bool getProperty(uint32_t propID, int32_t &outValue) override;
 
-    /** Close a capture stream */
-    virtual void close() override;
+        /** get automatic state of property (exposure, zoom etc) of camera/stream */
+        virtual bool getAutoProperty(uint32_t propID, bool &enabled) override;
 
-    /** set the frame rate */
-    virtual bool setFrameRate(uint32_t fps) override;
+    protected:
+        /** A re-implementation of Stream::submitBuffer with BGR to RGB conversion */
+        virtual void submitBuffer(const uint8_t *ptr, size_t bytes) override;
 
-    /** Return the FOURCC media type of the stream */
-    virtual uint32_t getFOURCC() override;
+        /** Add the Direct show filter graph to the object list so
+            GraphEdt.exe can see it - for debugging purposes only.
+            See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd390650(v=vs.85).aspx
+        */
+        HRESULT AddToRot(IUnknown *pUnkGraph, DWORD *pdwRegister);
 
-    /** get the limits of a camera/stream property (exposure, zoom etc) */
-    virtual bool getPropertyLimits(uint32_t propID, int32_t *min, int32_t *max, int32_t *dValue) override;
+        /** Remove the Direct show filter graph from the object list
+             - for debugging purposes only. */
+        void RemoveFromRot(DWORD pdwRegister);
 
-    /** set property (exposure, zoom etc) of camera/stream */
-    virtual bool setProperty(uint32_t propID, int32_t value) override;
+        /** Write filter graph to 'filtergraph.grf' file - for debugging purposes only.*/
+        HRESULT SaveGraphFile(IGraphBuilder *pGraph);
 
-    /** set automatic state of property (exposure, zoom etc) of camera/stream */
-    virtual bool setAutoProperty(uint32_t propID, bool enabled) override;
+        /** get DirectShow property + flags helper function */
+        bool getDSProperty(uint32_t propID, long &value, long &flags);
 
-    /** get property (exposure, zoom etc) of camera/stream */
-    virtual bool getProperty(uint32_t propID, int32_t &outValue) override;
-    
-    /** get automatic state of property (exposure, zoom etc) of camera/stream */
-    virtual bool getAutoProperty(uint32_t propID, bool &enabled) override;
+        void dumpCameraProperties();
 
-protected:
-    /** A re-implementation of Stream::submitBuffer with BGR to RGB conversion */
-    virtual void submitBuffer(const uint8_t *ptr, size_t bytes) override;
+        IFilterGraph2*  m_graph;
+        IMediaControl*  m_control;
+        IBaseFilter*    m_sourceFilter;
+        IBaseFilter*    m_sampleGrabberFilter;
+        IBaseFilter*    m_nullRenderer;
+        ISampleGrabber* m_sampleGrabber;
+        ICaptureGraphBuilder2* m_capture;
+        IAMCameraControl* m_camControl;
+        IAMVideoProcAmp* m_videoProcAmp;
 
-    /** Add the Direct show filter graph to the object list so
-        GraphEdt.exe can see it - for debugging purposes only.
-        See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd390650(v=vs.85).aspx    
-    */
-    HRESULT AddToRot(IUnknown *pUnkGraph, DWORD *pdwRegister);
+        /** Each time a new frame is available, the DirectShow subsystem
+            will call the callback handler */
+        StreamCallbackHandler *m_callbackHandler;
 
-    /** Remove the Direct show filter graph from the object list 
-         - for debugging purposes only. */
-    void RemoveFromRot(DWORD pdwRegister);
+        VIDEOINFOHEADER m_videoInfo;            ///< video information of current captured stream
 
-    /** Write filter graph to 'filtergraph.grf' file - for debugging purposes only.*/
-    HRESULT SaveGraphFile(IGraphBuilder *pGraph);
-
-    /** get DirectShow property + flags helper function */
-    bool getDSProperty(uint32_t propID, long &value, long &flags);
-
-    void dumpCameraProperties();
-
-    IFilterGraph2*  m_graph;
-    IMediaControl*  m_control;
-    IBaseFilter*    m_sourceFilter;
-    IBaseFilter*    m_sampleGrabberFilter;
-    IBaseFilter*    m_nullRenderer;
-    ISampleGrabber* m_sampleGrabber;
-    ICaptureGraphBuilder2* m_capture;
-    IAMCameraControl* m_camControl;
-    IAMVideoProcAmp* m_videoProcAmp;
-
-    /** Each time a new frame is available, the DirectShow subsystem
-        will call the callback handler */
-    StreamCallbackHandler *m_callbackHandler;
-
-    VIDEOINFOHEADER m_videoInfo;            ///< video information of current captured stream
-
-    DWORD dwRotRegister;    ///< for exposing the filtergraph to GraphEdt
-};
-
+        DWORD dwRotRegister;    ///< for exposing the filtergraph to GraphEdt
+    };
+}
 #endif

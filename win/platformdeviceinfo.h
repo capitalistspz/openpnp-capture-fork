@@ -32,16 +32,18 @@
 
 #include "../common/deviceinfo.h"
 
-/** device information struct/object */
-class platformDeviceInfo : public deviceInfo
+namespace openpnp_capture
 {
-public:
-    platformDeviceInfo() : deviceInfo() {}
+    /** device information struct/object */
+    class platformDeviceInfo : public deviceInfo
+    {
+    public:
+        platformDeviceInfo() : deviceInfo() {}
 
-    ~platformDeviceInfo() { }
+        ~platformDeviceInfo() { }
 
-    std::wstring    m_filterName;   ///< DirectShow internal device name
-    std::wstring    m_devicePath;   ///< unique device path
-};
-
+        std::wstring    m_filterName;   ///< DirectShow internal device name
+        std::wstring    m_devicePath;   ///< unique device path
+    };
+}
 #endif
