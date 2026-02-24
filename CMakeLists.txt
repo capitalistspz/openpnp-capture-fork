@@ -66,14 +66,6 @@ else(CMAKE_BUILD_TYPE MATCHES Release)
 endif(CMAKE_BUILD_TYPE MATCHES Release)
 
 # create our capture library
-if(BUILD_SHARED_LIBS)
-    message(STATUS "OPENPNP-CAPTURE: Building shared library")
-
-else()
-    add_definitions(-DOPENPNPCAPTURE_STATIC)
-    message(STATUS "OPENPNP-CAPTURE: Building static library")
-endif()
-
 add_library(openpnp-capture
         common/libmain.cpp
         common/context.cpp
@@ -88,6 +80,14 @@ target_include_directories(openpnp-capture PUBLIC
 set_target_properties(openpnp-capture PROPERTIES
                       VERSION ${OPENPNP_CAPTURE_LIB_VERSION}
                       SOVERSION ${OPENPNP_CAPTURE_LIB_SOVERSION})
+
+if(BUILD_SHARED_LIBS)
+    message(STATUS "OPENPNP-CAPTURE: Building shared library")
+
+else()
+    target_compile_definitions(openpnp-capture PUBLIC OPENPNP_CAPTURE_STATIC_LIBRARY)
+    message(STATUS "OPENPNP-CAPTURE: Building static library")
+endif()
 
 IF (WIN32)
     if(MSVC)

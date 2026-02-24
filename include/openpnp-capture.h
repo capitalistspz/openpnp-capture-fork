@@ -33,8 +33,8 @@
 
 #include <stdint.h>
 
-#if defined(_MSC_VER)
-    #ifndef OPENPNPCAPTURE_STATIC
+#if defined(_WIN32)
+    #ifndef OPENPNP_CAPTURE_STATIC_LIBRARY
         #define OPENPNP_CAPTURE_IMPORT __declspec(dllimport)
         #define OPENPNP_CAPTURE_EXPORT __declspec(dllexport)
     #else
@@ -53,7 +53,7 @@
 
 // make sure its exported/imported as pure C 
 // even if we're compiling with a C++ compiler
-#ifdef BUILD_OPENPNP_LIBRARY
+#ifdef OPENPNP_CAPTURE_BUILD_LIBRARY
     #ifdef __cplusplus
         #define OPENPNP_CAPTURE_API extern "C" OPENPNP_CAPTURE_EXPORT
     #else

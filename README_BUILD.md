@@ -54,10 +54,10 @@ cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -G
 
 ### When Using Static Library
 
-When linking against the static library, make sure to define `OPENPNPCAPTURE_STATIC` in your project to ensure correct symbol linkage:
+When linking against the static library, make sure to define `OPENPNP_CAPTURE_STATIC_LIBRARY` in your project to ensure correct symbol linkage:
 
 ```cpp
-#define OPENPNPCAPTURE_STATIC
+#define OPENPNP_CAPTURE_STATIC_LIBRARY
 #include "openpnp-capture.h"
 ```
 

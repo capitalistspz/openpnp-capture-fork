@@ -25,7 +25,7 @@
     SOFTWARE.
 */
 
-#define BUILD_OPENPNP_LIBRARY
+#define OPENPNP_CAPTURE_BUILD_LIBRARY
 
 #include "openpnp-capture.h"
 #include "context.h"
