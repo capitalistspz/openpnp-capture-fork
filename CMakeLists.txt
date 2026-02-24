@@ -10,7 +10,7 @@
 # Author: Niels A. Moseley, Jason von Nieda
 #
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 project (openpnp-capture)
 set(OPENPNP_CAPTURE_LIB_VERSION "0.0.28" CACHE STRING "openpnp-capture library version")
 set(OPENPNP_CAPTURE_LIB_SOVERSION "0" CACHE STRING "openpnp-capture library soversion")
@@ -90,16 +90,6 @@ else()
 endif()
 
 IF (WIN32)
-    if(MSVC)
-        if(LINK_DYNAMIC_MSVC_RUNTIME)
-            set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-            set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-        else()
-            set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-            set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-        endif()
-    endif()
-
     # set the platform identification string
     add_definitions(-DOPENPNP_CAPTURE_PLATFORM="Win ${COMPILERBITS}")
     
