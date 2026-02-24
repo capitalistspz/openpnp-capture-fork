@@ -14,6 +14,7 @@ cmake_minimum_required(VERSION 3.15)
 project (openpnp-capture)
 set(OPENPNP_CAPTURE_LIB_VERSION "0.0.28" CACHE STRING "openpnp-capture library version")
 set(OPENPNP_CAPTURE_LIB_SOVERSION "0" CACHE STRING "openpnp-capture library soversion")
+option(OPENPNP_CAPTURE_BUILD_TESTS "Build tests" ON)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
@@ -95,8 +96,10 @@ IF (WIN32)
                                            win/platformstream.cpp)
     target_link_libraries(openpnp-capture strmiids)
 
-    # add windows-specific test application
-    add_subdirectory(win/tests)
+    if(OPENPNP_CAPTURE_BUILD_TESTS)
+        # add windows-specific test application
+        add_subdirectory(win/tests)
+    endif ()
 
 ELSEIF(APPLE)
     # set the platform identification string
@@ -116,8 +119,10 @@ ELSEIF(APPLE)
         "-framework IOKit"
         )
 
-    # add mac specific test application
-    add_subdirectory(mac/tests)
+    if(OPENPNP_CAPTURE_BUILD_TESTS)
+        # add mac-specific test application
+        add_subdirectory(mac/tests)
+    endif ()
 
 ELSEIF(UNIX)
     # install path resolving
@@ -188,7 +193,9 @@ ELSEIF(UNIX)
     endif()
 
     # add linux-specific test application
-    add_subdirectory(linux/tests)
+    if(OPENPNP_CAPTURE_BUILD_TESTS)
+        add_subdirectory(linux/tests)
+    endif ()
 
     # install lib and headers
     install(FILES include/openpnp-capture.h
