@@ -180,6 +180,7 @@ ELSEIF(UNIX)
             SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/linux/contrib/libjpeg-turbo-3.1.2
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX=${LIBJPEG_TURBO_INSTALL_DIR}
+                -DCMAKE_INSTALL_LIBDIR=lib
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                 -DENABLE_SHARED=OFF
                 -DWITH_SIMD=ON
