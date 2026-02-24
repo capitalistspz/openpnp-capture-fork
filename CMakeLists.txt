@@ -152,6 +152,7 @@ ELSEIF(UNIX)
         target_include_directories(openpnp-capture PRIVATE ${TurboJPEG_INCLUDE_DIRS})
         target_link_libraries(openpnp-capture PRIVATE ${TurboJPEG_LIBRARIES})
     else()
+        message(STATUS "Failed to find system turbojpeg, using in-tree version")
         # compile libjpeg-turbo for MJPEG decoding support using ExternalProject
         include(ExternalProject)
 
