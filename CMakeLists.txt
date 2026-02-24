@@ -22,9 +22,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 # make sure the libjpegturbo is compiled with the
 # position independent flag -fPIC
 IF (UNIX)
-    set(POSITION_INDEPENDENT_CODE TRUE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+    set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
     # Add O3 optimizations and native architecture for release builds
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
@@ -80,7 +78,6 @@ set_target_properties(openpnp-capture PROPERTIES
 
 if(BUILD_SHARED_LIBS)
     message(STATUS "OPENPNP-CAPTURE: Building shared library")
-
 else()
     target_compile_definitions(openpnp-capture PUBLIC OPENPNP_CAPTURE_STATIC_LIBRARY)
     message(STATUS "OPENPNP-CAPTURE: Building static library")
@@ -160,6 +157,7 @@ ELSEIF(UNIX)
             SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/linux/contrib/libjpeg-turbo-3.1.2
             CMAKE_ARGS
                 -DCMAKE_INSTALL_PREFIX=${LIBJPEG_TURBO_INSTALL_DIR}
+                -DCMAKE_INSTALL_LIBDIR=lib
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                 -DENABLE_SHARED=OFF
                 -DWITH_SIMD=ON
